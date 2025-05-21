@@ -569,13 +569,14 @@ for t_hop in [-0.01, 0, 0.01]:
     Att = A_0 * (np.sin(omega_0 * t / 20) ** 2) * np.sin(omega_0 * t)
 
     # plot the Att
-    plt.plot(t, Att, label=f'Att vs. Time, t_hop={t_hop}')
-    plt.xlabel('Time')
-    plt.ylabel('Att')
-    plt.title('Att in Time')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+    # plt.plot(t, Att, label=f'Att vs. Time, t_hop={t_hop}')
+    # plt.xlabel('Time')
+    # plt.ylabel('Att')
+    # plt.title('Att in Time')
+    # plt.legend()
+    # plt.grid(True)
+    # plt.show()
+    
 
     # Calculate the components for right-handed circular polarization
     # A_x = A_0 * sin2_term * np.sin(omega_0 * t)
@@ -656,6 +657,17 @@ for t_hop in [-0.01, 0, 0.01]:
     J_t = [calculate_current(solutions, t_index, time_steps, Ht, A) for t_index in range(len(time_steps))]
     J_y = [J[1] for J in J_t]
     J_x = [J[0] for J in J_t]
+
+    plt.plot(time_steps, J_y, label='J_y', linewidth=2)
+    plt.plot(time_steps, J_x, label='J_x', linewidth=2)
+    plt.xlabel('Time (a.u.)', fontsize=14)
+    plt.ylabel('Current Density (a.u.)', fontsize=14)
+    plt.title(f'Current Density, $A_0$ = {intensity_Wcm/ 1e10:.3f} 10^10 W/cm^2", $\omega_0 = ${wavelength_um:.2f} $\mu$m', fontsize=16)
+    plt.legend()
+
+    plt.show()
+
+    exit()
     dJ_y_dt = np.gradient(J_y, time_steps)
 
     # Apply a Hann window
