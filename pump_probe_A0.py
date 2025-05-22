@@ -188,7 +188,7 @@ def plot_edge():
     
     # Print information
 
-m = 2 # Flake with side size m
+m = 5 # Flake with side size m
 
 # Create the hexagonal lattice and process it
 G = nx.hexagonal_lattice_graph(2 * m - 1, 2 * m - 1, periodic=False, with_positions=True)
@@ -625,7 +625,7 @@ for factor in amplitudes:
 
     # Save and show the plot
     number = random.randint(0, 10000)
-    plt.savefig(f'hopps_convergence_fft_{wavelength_um}_{number}_{factor}.pdf')
+    plt.savefig(f'pupmprobe_{wavelength_um}_{number}_{factor}.pdf')
     #plt.show()
 
     
