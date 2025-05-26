@@ -119,7 +119,7 @@ def plot_hexagonal_flake(G, pos, m, vertical_edge_nodes):
     """Plot the hexagonal flake with highlighted vertical edge."""
     edge_G = G.subgraph(vertical_edge_nodes)
     
-    plt.figure(figsize=(8, 8))
+    #plt.figure(figsize=(8, 8))
     
     # Plot all atoms in grey
     nx.draw_networkx_nodes(G, pos, node_color='lightgrey', node_size=100)
@@ -158,7 +158,7 @@ def plot_hexagonal_flake(G, pos, m, vertical_edge_nodes):
     plt.axis('equal')
     plt.title(f'Hexagonal Flake (m={m}) with Vertical Edge Highlighted')
     #plt.savefig('plots/hexagonal_flake.png')
-    plt.show()
+    #plt.show()
 
 
 
@@ -188,7 +188,7 @@ def plot_edge():
     
     # Print information
 
-m = 2 # Flake with side size m
+m = 5 # Flake with side size m
 
 # Create the hexagonal lattice and process it
 G = nx.hexagonal_lattice_graph(2 * m - 1, 2 * m - 1, periodic=False, with_positions=True)
@@ -411,14 +411,18 @@ def hamiltonian(M,t_1,t_2):
 # Plot the results
 
 
-amplitudes = [0, 0.5]  # Values of t2 to test
 
+#amplitudes =[0.1,0.2]
 
+# list from 500 to 3000 with increments of 500
 
-for factor in amplitudes:
+delays = list(range(500, 3001, 500))
+for factor in delays:
 
     current_x = []
     current_y = []
+
+    factor = int(factor)
 
     t2 = -0.01
 
@@ -427,15 +431,15 @@ for factor in amplitudes:
     Delta = 0.1
 
     H=hamiltonian(Delta,t1,t2)
-    A_0_1 = factor
+    A_0_1 = 0.3
     A_0_2 = 0.2
 
 
 
     ew, ev = LA.eigh(H)
-    dt = 16000+1000
+    dt = 12000+ factor
 
-    dt_1 = (dt-1000)//2
+    dt_1 = (dt-factor)//2
     #omega_0 = 0.08 # 570 nm
 
     omega_0 = 0.0759389 # 600 nm
@@ -572,73 +576,62 @@ for factor in amplitudes:
     J_y = [J[1] for J in J_t]
     J_x = [J[0] for J in J_t]
 
-    # Compute time derivatives
+    # plot J_y
+
     dJ_y_dt = np.gradient(J_y, time_steps)
     dJ_x_dt = np.gradient(J_x, time_steps)
+    dJ_y_dt = dJ_y_dt[6000+factor:]
+    dJ_x_dt = dJ_x_dt[6000+factor:]
 
-    # Skip initial part (e.g., to remove transient effects)
-    dJ_y_dt = dJ_y_dt[9000:]
-    dJ_x_dt = dJ_x_dt[9000:]
-    time_steps = time_steps[9000:]  # Adjust time_steps accordingly
-
-    # Apply Hann window
+    # Apply a Hann window
     hann_window = np.hanning(len(dJ_y_dt))
     dJ_y_dt_windowed = dJ_y_dt * hann_window
-    dJ_x_dt_windowed = dJ_x_dt * hann_window
 
-    # Perform FFT
+    # Perform FFT on the windowed data
     fft_dJ_y_dt = np.fft.fft(dJ_y_dt_windowed)
-    fft_dJ_x_dt = np.fft.fft(dJ_x_dt_windowed)
-
-    # Compute power spectrum
     abs_fft_dJ_y_dt = np.abs(fft_dJ_y_dt) ** 2
-    abs_fft_dJ_x_dt = np.abs(fft_dJ_x_dt) ** 2
 
-    # Frequency axis (rad/s)
+    # Calculate frequencies
     frequencies = np.fft.fftfreq(len(dJ_y_dt), d=time_steps[1] - time_steps[0])
-    positive_mask = frequencies >= 0
-    positive_frequencies = 2 * np.pi * frequencies[positive_mask]  # convert to angular frequency
 
-    # Extract positive part of the power spectrum
-    abs_fft_dJ_y_dt_positive = abs_fft_dJ_y_dt[positive_mask]
-    abs_fft_dJ_x_dt_positive = abs_fft_dJ_x_dt[positive_mask]
+    positive_frequencies = 2 * np.pi * frequencies[frequencies >= 0]
+    abs_fft_dJ_y_dt_positive = abs_fft_dJ_y_dt[frequencies >= 0]
 
-    # Total intensity
+    dJ_x_dt_windowed = dJ_x_dt * hann_window
+    fft_dJ_x_dt = np.fft.fft(dJ_x_dt_windowed)
+    abs_fft_dJ_x_dt = np.abs(fft_dJ_x_dt) ** 2
+    abs_fft_dJ_x_dt_positive = abs_fft_dJ_x_dt[frequencies >= 0]
+
     total_intensity = abs_fft_dJ_y_dt_positive + abs_fft_dJ_x_dt_positive
 
-    # Select 12th to 24th harmonics
-    lower_harmonic = 12
-    upper_harmonic = 24
-    lower_frequency = lower_harmonic * omega_0
-    upper_frequency = upper_harmonic * omega_0
+    harmonic_10_frequency = 12 * omega_0
+    harmonic_10_index = np.argmin(np.abs(positive_frequencies - harmonic_10_frequency))
+    max_frequency = positive_frequencies[harmonic_10_index]
+    x_ticks = np.arange(0, max_frequency, omega_0)
 
-    harmonic_mask = (positive_frequencies >= lower_frequency) & (positive_frequencies <= upper_frequency)
+    # Plot the results for the current time
 
-    # Generate x-ticks for harmonic numbers
-    x_ticks = np.arange(lower_harmonic, upper_harmonic + 1)
-    x_tick_freqs = x_ticks * omega_0
+    # Initialize the plot
 
-    # Plotting
-    plt.figure(figsize=(8, 5))
-    plt.plot(positive_frequencies[harmonic_mask], 1e12 * total_intensity[harmonic_mask], label='Spectrum')
+    plt.figure(figsize=(12, 6))
 
+
+    plt.plot(positive_frequencies[:harmonic_10_index], 1e12 * total_intensity[:harmonic_10_index])
+
+    # Set plot labels and title
     plt.yscale('log')
     plt.xlabel('Harmonic Order')
     plt.ylabel(r'$|FFT(\dot{J})|^2$')
-    plt.xticks(x_tick_freqs, [str(i) for i in x_ticks])
-
-    # Format title
+    plt.xticks(x_ticks, [f'{i}' for i in range(len(x_ticks))])
     wavelength_um = round(wavelength_um, 2)
-    plt.title(f'Linearly polarized pulse, Wavelength = {wavelength_um} $\mu$m, '
-            f'Hexagon side = {m}, Field strength = {intensity_Wcm / 1e10:.3f} × 10¹⁰ W/cm²')
 
+    plt.title(f'linearly polarized pulse, Wavelength = {wavelength_um} ' f"$\mu$m, length side of the hexagon flake = {m}, field_strength = {intensity_Wcm/ 1e10:.3f} 10^10 W/cm^2")
     plt.grid(True, which='both', linestyle='--', linewidth=0.5)
     plt.legend()
 
-    # Save and show
+    # Save and show the plot
     number = random.randint(0, 10000)
-    plt.savefig(f'pumpprobe_{wavelength_um}_{number}_{factor}.pdf')
-    
+    plt.savefig(f'pupmprobe_{wavelength_um}_{number}_{factor}.pdf')
     #plt.show()
 
     
