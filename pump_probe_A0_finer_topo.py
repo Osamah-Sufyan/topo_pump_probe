@@ -119,7 +119,7 @@ def plot_hexagonal_flake(G, pos, m, vertical_edge_nodes):
     """Plot the hexagonal flake with highlighted vertical edge."""
     edge_G = G.subgraph(vertical_edge_nodes)
     
-    plt.figure(figsize=(8, 8))
+    #plt.figure(figsize=(8, 8))
     
     # Plot all atoms in grey
     nx.draw_networkx_nodes(G, pos, node_color='lightgrey', node_size=100)
@@ -158,7 +158,7 @@ def plot_hexagonal_flake(G, pos, m, vertical_edge_nodes):
     plt.axis('equal')
     plt.title(f'Hexagonal Flake (m={m}) with Vertical Edge Highlighted')
     #plt.savefig('plots/hexagonal_flake.png')
-    plt.show()
+    #plt.show()
 
 
 
@@ -188,7 +188,7 @@ def plot_edge():
     
     # Print information
 
-m = 5 # Flake with side size m
+m = 2 # Flake with side size m
 
 # Create the hexagonal lattice and process it
 G = nx.hexagonal_lattice_graph(2 * m - 1, 2 * m - 1, periodic=False, with_positions=True)
@@ -411,7 +411,9 @@ def hamiltonian(M,t_1,t_2):
 # Plot the results
 
 
-amplitudes = [0, 0.5, 0.8]  # Values of t2 to test
+
+#amplitudes = [0,0.1,0.2,0.3,0.4 ,0.5]  # Values of t2 to test
+amplitudes =[0.1,0.2]
 
 
 
@@ -433,7 +435,7 @@ for factor in amplitudes:
 
 
     ew, ev = LA.eigh(H)
-    dt = 16000+1000
+    dt = 8000+1000
 
     dt_1 = (dt-1000)//2
     #omega_0 = 0.08 # 570 nm
@@ -576,8 +578,8 @@ for factor in amplitudes:
 
     dJ_y_dt = np.gradient(J_y, time_steps)
     dJ_x_dt = np.gradient(J_x, time_steps)
-    dJ_y_dt = dJ_y_dt[9000:]
-    dJ_x_dt = dJ_x_dt[9000:]
+    dJ_y_dt = dJ_y_dt[5000:]
+    dJ_x_dt = dJ_x_dt[5000:]
 
     # Apply a Hann window
     hann_window = np.hanning(len(dJ_y_dt))
@@ -608,6 +610,8 @@ for factor in amplitudes:
     # Plot the results for the current time
 
     # Initialize the plot
+
+    plt.figure(figsize=(12, 6))
 
 
     plt.plot(positive_frequencies[:harmonic_10_index], 1e12 * total_intensity[:harmonic_10_index])
