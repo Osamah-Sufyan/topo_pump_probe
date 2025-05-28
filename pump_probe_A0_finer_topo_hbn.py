@@ -422,7 +422,7 @@ for factor in amplitudes:
     current_x = []
     current_y = []
 
-    t2 = -0.01
+    t2 = 0
 
 
     t1 = -0.1
@@ -611,7 +611,7 @@ for factor in amplitudes:
 
     # Initialize the plot
 
-    plt.figure(figsize=(12, 6))
+    #plt.figure(figsize=(12, 6))
 
 
     plt.plot(positive_frequencies[:harmonic_10_index], 1e12 * total_intensity[:harmonic_10_index])
@@ -629,7 +629,7 @@ for factor in amplitudes:
 
     # Save and show the plot
     number = random.randint(0, 10000)
-    plt.savefig(f'pupmprobe_{wavelength_um}_{number}_{factor}.pdf')
+    plt.savefig(f'pupmprobe_hbn_{wavelength_um}_{number}_{factor}.pdf')
     #plt.show()
 
     

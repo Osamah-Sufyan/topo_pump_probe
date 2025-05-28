@@ -188,7 +188,7 @@ def plot_edge():
     
     # Print information
 
-m = 2 # Flake with side size m
+m = 5 # Flake with side size m
 
 # Create the hexagonal lattice and process it
 G = nx.hexagonal_lattice_graph(2 * m - 1, 2 * m - 1, periodic=False, with_positions=True)
@@ -619,7 +619,7 @@ for factor in amplitudes:
     x_tick_freqs = x_ticks * omega_0
 
     # Plotting
-    plt.figure(figsize=(8, 5))
+    #plt.figure(figsize=(8, 5))
     plt.plot(positive_frequencies[harmonic_mask], 1e12 * total_intensity[harmonic_mask], label='Spectrum')
 
     plt.yscale('log')

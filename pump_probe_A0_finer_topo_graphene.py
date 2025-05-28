@@ -188,7 +188,7 @@ def plot_edge():
     
     # Print information
 
-m = 5 # Flake with side size m
+m = 2 # Flake with side size m
 
 # Create the hexagonal lattice and process it
 G = nx.hexagonal_lattice_graph(2 * m - 1, 2 * m - 1, periodic=False, with_positions=True)
@@ -412,8 +412,8 @@ def hamiltonian(M,t_1,t_2):
 
 
 
-amplitudes = [0,0.1,0.2,0.3,0.4 ,0.5]  # Values of t2 to test
-#amplitudes =[0.1,0.2]
+#amplitudes = [0,0.1,0.2,0.3,0.4 ,0.5]  # Values of t2 to test
+amplitudes =[0.1,0.2]
 
 
 
@@ -422,11 +422,11 @@ for factor in amplitudes:
     current_x = []
     current_y = []
 
-    t2 = -0.01
+    t2 = 0
 
 
     t1 = -0.1
-    Delta = 0.1
+    Delta = 0
 
     H=hamiltonian(Delta,t1,t2)
     A_0_1 = factor
@@ -435,7 +435,7 @@ for factor in amplitudes:
 
 
     ew, ev = LA.eigh(H)
-    dt = 12000+1000
+    dt = 8000+1000
 
     dt_1 = (dt-1000)//2
     #omega_0 = 0.08 # 570 nm
@@ -578,8 +578,8 @@ for factor in amplitudes:
 
     dJ_y_dt = np.gradient(J_y, time_steps)
     dJ_x_dt = np.gradient(J_x, time_steps)
-    dJ_y_dt = dJ_y_dt[7000:]
-    dJ_x_dt = dJ_x_dt[7000:]
+    dJ_y_dt = dJ_y_dt[5000:]
+    dJ_x_dt = dJ_x_dt[5000:]
 
     # Apply a Hann window
     hann_window = np.hanning(len(dJ_y_dt))
@@ -611,7 +611,7 @@ for factor in amplitudes:
 
     # Initialize the plot
 
-    plt.figure(figsize=(12, 6))
+    #plt.figure(figsize=(12, 6))
 
 
     plt.plot(positive_frequencies[:harmonic_10_index], 1e12 * total_intensity[:harmonic_10_index])
@@ -629,7 +629,8 @@ for factor in amplitudes:
 
     # Save and show the plot
     number = random.randint(0, 10000)
-    plt.savefig(f'pupmprobe_{wavelength_um}_{number}_{factor}.pdf')
+    plt.savefig(f'pupmprobe_graphene.pdf')
+    #plt.savefig(f'pupmprobe_graphene_{wavelength_um}_{number}_{factor}.pdf')
     #plt.show()
 
     
