@@ -629,8 +629,8 @@ for factor in amplitudes:
 
     # Save and show the plot
     number = random.randint(0, 10000)
-    plt.savefig(f'pupmprobe_graphene.pdf')
-    #plt.savefig(f'pupmprobe_graphene_{wavelength_um}_{number}_{factor}.pdf')
+    #plt.savefig(f'pupmprobe_graphene.pdf')
+    plt.savefig(f'pupmprobe_graphene_{wavelength_um}_{number}_{factor}.pdf')
     #plt.show()
 
     
