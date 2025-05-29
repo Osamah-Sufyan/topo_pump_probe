@@ -411,7 +411,7 @@ def hamiltonian(M,t_1,t_2):
 # Plot the results
 
 
-amplitudes = [0, 0.5]  # Values of t2 to test
+amplitudes = [0,0.1,0.2,0.3,0.4, 0.5]  # Values of t2 to test
 
 
 
@@ -637,7 +637,7 @@ for factor in amplitudes:
 
     # Save and show
     number = random.randint(0, 10000)
-    plt.savefig(f'pumpprobe_{wavelength_um}_{number}_{factor}.pdf')
+    plt.savefig(f'pumpprobe_region2_{wavelength_um}_{number}_{factor}.pdf')
     
     #plt.show()
 

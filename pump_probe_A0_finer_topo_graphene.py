@@ -188,7 +188,7 @@ def plot_edge():
     
     # Print information
 
-m = 2 # Flake with side size m
+m = 5 # Flake with side size m
 
 # Create the hexagonal lattice and process it
 G = nx.hexagonal_lattice_graph(2 * m - 1, 2 * m - 1, periodic=False, with_positions=True)
@@ -412,8 +412,8 @@ def hamiltonian(M,t_1,t_2):
 
 
 
-#amplitudes = [0,0.1,0.2,0.3,0.4 ,0.5]  # Values of t2 to test
-amplitudes =[0.1,0.2]
+amplitudes = [0,0.1,0.2,0.3,0.4 ,0.5]  # Values of t2 to test
+#amplitudes =[0.1,0.2]
 
 
 
@@ -435,7 +435,7 @@ for factor in amplitudes:
 
 
     ew, ev = LA.eigh(H)
-    dt = 8000+1000
+    dt = 12000+1000
 
     dt_1 = (dt-1000)//2
     #omega_0 = 0.08 # 570 nm
@@ -578,8 +578,8 @@ for factor in amplitudes:
 
     dJ_y_dt = np.gradient(J_y, time_steps)
     dJ_x_dt = np.gradient(J_x, time_steps)
-    dJ_y_dt = dJ_y_dt[5000:]
-    dJ_x_dt = dJ_x_dt[5000:]
+    dJ_y_dt = dJ_y_dt[7000:]
+    dJ_x_dt = dJ_x_dt[7000:]
 
     # Apply a Hann window
     hann_window = np.hanning(len(dJ_y_dt))
