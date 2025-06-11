@@ -630,8 +630,9 @@ for factor in amplitudes:
 
     # Save and show the plot
     number = random.randint(0, 10000)
-    plt.savefig(f'pupmprobe_topofiner_{wavelength_um}_{number}_{factor}.pdf')
+    plt.savefig(f'plots/pupmprobe_topofinerto25_{wavelength_um}_{number}_{factor}.pdf')
     #plt.show()
+    
 
     
     

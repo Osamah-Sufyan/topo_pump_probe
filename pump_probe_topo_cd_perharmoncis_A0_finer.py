@@ -423,7 +423,7 @@ for ind, factor in enumerate(amplitudes):
     current_x = []
     current_y = []
 
-    t2 = 0
+    t2 = -0.2
 
 
     t1 = -0.1
@@ -634,7 +634,7 @@ for ind, factor in enumerate(amplitudes):
     current_x = []
     current_y = []
 
-    t2 = 0
+    t2 = -0.2
 
 
     t1 = -0.1
@@ -825,5 +825,5 @@ plt.title(r'$C(n)$ dichroism vs Harmonic Order')
 plt.xticks(harmonic_orders)
 plt.legend()
 plt.grid(True)
-plt.savefig('plots/cd_vs_harmonic_order_triavial.pdf')
+plt.savefig('plots/cd_vs_harmonic_order_topo.pdf')
 plt.show()
