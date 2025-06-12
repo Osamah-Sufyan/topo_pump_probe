@@ -188,7 +188,7 @@ def plot_edge():
     
     # Print information
 
-m = 2 # Flake with side size m
+m = 5 # Flake with side size m
 
 # Create the hexagonal lattice and process it
 G = nx.hexagonal_lattice_graph(2 * m - 1, 2 * m - 1, periodic=False, with_positions=True)
@@ -413,8 +413,8 @@ def hamiltonian(M,t_1,t_2):
 
 
 
-#amplitudes = [0,0.05,0.1,0.15,0.2 ,0.25]  # Values of t2 to test
-amplitudes =[0.1,0.2]
+amplitudes = [0,0.05,0.1,0.15,0.2 ,0.25]  # Values of t2 to test
+#amplitudes =[0.1,0.2]
 
 integral_arr = np.empty((len(amplitudes), 12))
 
@@ -437,7 +437,7 @@ for ind, factor in enumerate(amplitudes):
 
 
     ew, ev = LA.eigh(H)
-    dt = 6000+1000
+    dt = 12000+1000
 
     dt_1 = (dt-1000)//2
     #omega_0 = 0.08 # 570 nm
@@ -580,8 +580,8 @@ for ind, factor in enumerate(amplitudes):
 
     dJ_y_dt = np.gradient(J_y, time_steps)
     dJ_x_dt = np.gradient(J_x, time_steps)
-    dJ_y_dt = dJ_y_dt[4000:]
-    dJ_x_dt = dJ_x_dt[4000:]
+    dJ_y_dt = dJ_y_dt[7000:]
+    dJ_x_dt = dJ_x_dt[7000:]
 
     # Apply a Hann window
     hann_window = np.hanning(len(dJ_y_dt))
@@ -672,7 +672,7 @@ integral_arr = np.array(integral_arr)
 # the first column should be the A0 values
 
 integral_arr = np.column_stack((amplitudes, integral_arr))
-np.savetxt('integral_results.csv', integral_arr, delimiter=',', header='A0,' + ','.join([f'Harmonic {i+1}' for i in range(integral_arr.shape[1] - 1)]), comments='')
+np.savetxt('integral_results_topo.csv', integral_arr, delimiter=',', header='A0,' + ','.join([f'Harmonic {i+1}' for i in range(integral_arr.shape[1] - 1)]), comments='')
 
 
     
