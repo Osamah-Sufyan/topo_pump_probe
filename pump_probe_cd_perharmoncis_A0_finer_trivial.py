@@ -817,6 +817,11 @@ plt.figure(figsize=(12, 6))
 plt.plot(amplitudes, integral_arr[:, 0], label='1st Harmonic', marker='o')
 plt.plot(amplitudes, integral_arr[:, 1], label='5th Harmonic', marker='o')
 plt.plot(amplitudes, integral_arr[:, 2], label='7th Harmonic', marker='o')
+# font size of ticks
+
+plt.xticks(fontsize=14)
+plt.yticks(fontsize=14)
+
 
     # Initialize the plot
 
@@ -826,9 +831,10 @@ plt.plot(amplitudes, integral_arr[:, 2], label='7th Harmonic', marker='o')
     #plt.plot(positive_frequencies[:harmonic_10_index], 1e12 * total_intensity_left[:harmonic_10_index])
 
 # Set plot labels and title
-plt.xlabel('Harmonic Order')
-plt.ylabel('cd')
-
+plt.legend()
+plt.xlabel(r'$A_0$ (a.u.)', fontsize=14)
+plt.ylabel('cd', fontsize=14)
+plt.savefig(f'plots/circular_dichroism_vs_amplitude_graphene.pdf')
 plt.show()
 
 
