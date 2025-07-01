@@ -195,7 +195,7 @@ def plot_edge():
     
     # Print information
 
-m = 2 # Flake with side size m
+m = 5 # Flake with side size m
 
 # Create the hexagonal lattice and process it
 G = nx.hexagonal_lattice_graph(2 * m - 1, 2 * m - 1, periodic=False, with_positions=True)
@@ -822,37 +822,38 @@ A_0_2 = 0.2
 helicity = 1
 
 # Amplitudes to sweep
-#amplitudes = np.arange(0, 0.1, 0.025)  # 0 to 0.25 in steps of 0.01
-amplitudes =[0,0.1]
+amplitudes = np.arange(0, 0.1, 0.01)  # 0 to 0.25 in steps of 0.01
+#amplitudes =[0,0.1]
 
 # Argument list for parallel processing
 args_list = [(t1, t2, Delta, A_0_1, A_0_2, helicity) for A_0_1 in amplitudes]
 
 # Parallel call to pump_probe
-with ThreadPoolExecutor() as executor:
-    futures = [executor.submit(pump_probe, *args) for args in args_list]
-    results = [f.result() for f in futures]
-
-    # Unpack results
-cd_1, cd_2, cd_3 = zip(*results)
-integral_arr = np.array([cd_1, cd_2, cd_3]).T
+def pump_probe_wrapper(args):
+    return pump_probe(*args)
+if __name__ == '__main__':
+    with ProcessPoolExecutor() as executor:  # or ThreadPoolExecutor()
+        results = list(executor.map(pump_probe_wrapper, args_list))
+    
+    cd_1, cd_2, cd_3 = zip(*results)
+    integral_arr = np.array([cd_1, cd_2, cd_3]).T
 
 # Plotting
-plt.figure(figsize=(12, 6))
-plt.plot(amplitudes, integral_arr[:, 0], label='1st Harmonic', marker='o')
-plt.plot(amplitudes, integral_arr[:, 1], label='5th Harmonic', marker='o')
-plt.plot(amplitudes, integral_arr[:, 2], label='7th Harmonic', marker='o')
+    plt.figure(figsize=(12, 6))
+    plt.plot(amplitudes, integral_arr[:, 0], label='1st Harmonic', marker='o')
+    plt.plot(amplitudes, integral_arr[:, 1], label='5th Harmonic', marker='o')
+    plt.plot(amplitudes, integral_arr[:, 2], label='7th Harmonic', marker='o')
 
-# Format ticks and labels
-plt.xticks(fontsize=14)
-plt.yticks(fontsize=14)
-plt.xlabel(r'$A_0$ (a.u.)', fontsize=14)
-plt.ylabel('CD', fontsize=16)
-plt.legend()
+    # Format ticks and labels
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.xlabel(r'$A_0$ (a.u.)', fontsize=14)
+    plt.ylabel('CD', fontsize=16)
+    plt.legend()
 
-# Save and show
-plt.savefig('../plots/circular_dichroism_vs_amplitude_graphene_parallelized.pdf')
-plt.show()
+    # Save and show
+    plt.savefig('../plots/circular_dichroism_vs_amplitude_graphene.pdf')
+    plt.show()
 
 
     
