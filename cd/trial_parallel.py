@@ -27,7 +27,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 from multiprocessing import Pool
 from tqdm import tqdm
-
+import sys
+import csv
 
 
 
@@ -195,7 +196,7 @@ def plot_edge():
     
     # Print information
 
-m = 5 # Flake with side size m
+m = 2 # Flake with side size m
 
 # Create the hexagonal lattice and process it
 G = nx.hexagonal_lattice_graph(2 * m - 1, 2 * m - 1, periodic=False, with_positions=True)
@@ -425,425 +426,410 @@ amplitudes = np.arange(0, 0.1, 0.01)
 
 integral_arr = np.empty((len(amplitudes), 12))
 
-for ind, trial in enumerate(amplitudes):
+trial = float(sys.argv[1])
 
 
-    t2 = -0.1
+t2 = 0
 
 
-    t1 = -0.1
-    Delta = 0.1
+t1 = -0.1
+Delta = 0
 
-    H=hamiltonian(Delta,t1,t2)
-    A_0_1 = trial
-    A_0_2 = 0.2
+H=hamiltonian(Delta,t1,t2)
+A_0_1 = trial
+A_0_2 = 0.2
 
 
 
-    ew, ev = LA.eigh(H)
-    dt = 12000+1000
+ew, ev = LA.eigh(H)
+dt = 12000+1000
 
-    dt_1 = (dt-1000)//2
-    #omega_0 = 0.08 # 570 nm
+dt_1 = (dt-1000)//2
+#omega_0 = 0.08 # 570 nm
 
-    omega_0 = 0.0759389 # 600 nm
+omega_0 = 0.0759389 # 600 nm
 
-    n_0 = 10
+n_0 = 10
 
-    # Original time setup
-    t_total = np.arange(0, (4+(1/17)*4) * np.pi * n_0 / omega_0, (4+(1/17)*4) * np.pi * n_0 / omega_0 / dt)
-    t1 = np.arange(0, 2 * np.pi * n_0 / omega_0, 2 * np.pi * n_0 / omega_0 / dt_1)
-    t2 = np.arange(0, 2 * np.pi * n_0 / omega_0, 2 * np.pi * n_0 / omega_0 / dt_1)
+# Original time setup
+t_total = np.arange(0, (4+(1/17)*4) * np.pi * n_0 / omega_0, (4+(1/17)*4) * np.pi * n_0 / omega_0 / dt)
+t1 = np.arange(0, 2 * np.pi * n_0 / omega_0, 2 * np.pi * n_0 / omega_0 / dt_1)
+t2 = np.arange(0, 2 * np.pi * n_0 / omega_0, 2 * np.pi * n_0 / omega_0 / dt_1)
 
-    t_1 = t1
-    # Generate the A_x signal
-    sin2_term = np.sin(omega_0 * t_1 / (2 * n_0)) ** 2
-    A_x_1 = A_0_1 * sin2_term * np.cos(omega_0 * t_1)
-    A_y_1 = (-1)*A_0_1 * sin2_term * np.sin(omega_0 * t_1)
+t_1 = t1
+# Generate the A_x signal
+sin2_term = np.sin(omega_0 * t_1 / (2 * n_0)) ** 2
+A_x_1 = A_0_1 * sin2_term * np.cos(omega_0 * t_1)
+A_y_1 = A_0_1 * sin2_term * np.sin(omega_0 * t_1)
 
-    A_x_2 = A_0_2 * sin2_term * np.cos(omega_0 * t_1)
-    A_y_2 =A_0_2 * sin2_term * np.sin(omega_0 * t_1)
+A_x_2 = A_0_2 * sin2_term * np.cos(omega_0 * t_1)
+A_y_2 =A_0_2 * sin2_term * np.sin(omega_0 * t_1)
 
 
-    zero_padding = np.zeros(1000)
-    A_x = np.concatenate((A_x_1,zero_padding, A_x_2))
-    A_y = np.concatenate((A_y_1,zero_padding, A_y_2))
+zero_padding = np.zeros(1000)
+A_x = np.concatenate((A_x_1,zero_padding, A_x_2))
+A_y = np.concatenate((A_y_1,zero_padding, A_y_2))
 
-    # plot A_x and A_y
+# plot A_x and A_y
 
 
 
-    # Extend time by 25% and generate corresponding extended A_x values
+# Extend time by 25% and generate corresponding extended A_x values
 
 
-    # Extend the time vector
+# Extend the time vector
 
-    # Extend A_x by zero padding for the extra time
-    # A_x = np.concatenate((A_x, zero_padding))  # Append zero padding to A_x 
+# Extend A_x by zero padding for the extra time
+# A_x = np.concatenate((A_x, zero_padding))  # Append zero padding to A_x 
 
-    # # Extend A_y by zero padding for the extra time
-    # A_y = np.concatenate((A_y, zero_padding))  # Correctly extend A_y
+# # Extend A_y by zero padding for the extra time
+# A_y = np.concatenate((A_y, zero_padding))  # Correctly extend A_y
 
-    # Ensure A_x and A_y have the same length as t
+# Ensure A_x and A_y have the same length as t
 
-    t = t_total
-    time_steps  = t
-    wavelength_um = 0.04564 / omega_0
-    intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
-    #print(t[-1])
+t = t_total
+time_steps  = t
+wavelength_um = 0.04564 / omega_0
+intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
+#print(t[-1])
 
-    # A_y = A_y[9000:]
+# A_y = A_y[9000:]
 
-    # plt.figure(figsize=(16, 8))
-    # plt.plot(time_steps,A_y, label='A_x', linewidth=2)
-    # plt.plot(time_steps, A_x, label='A_y', linewidth=2)
-    # plt.xlabel('Time (a.u.)', fontsize=14)
-    # plt.ylabel('Field Amplitude (a.u.)', fontsize=14)
+# plt.figure(figsize=(16, 8))
+# plt.plot(time_steps,A_y, label='A_x', linewidth=2)
+# plt.plot(time_steps, A_x, label='A_y', linewidth=2)
+# plt.xlabel('Time (a.u.)', fontsize=14)
+# plt.ylabel('Field Amplitude (a.u.)', fontsize=14)
 
-    # plt.title(f'Pump-Probe Field Amplitudes, $A_0$ = {intensity_Wcm/ 1e10:.3f} 10^10 W/cm^2", $\omega_0 = ${wavelength_um:.2f} $\mu$m', fontsize=16)
-    # plt.legend()
-    # # make grid 
-    # plt.grid()
-    # plt.show()
-    #continue
+# plt.title(f'Pump-Probe Field Amplitudes, $A_0$ = {intensity_Wcm/ 1e10:.3f} 10^10 W/cm^2", $\omega_0 = ${wavelength_um:.2f} $\mu$m', fontsize=16)
+# plt.legend()
+# # make grid 
+# plt.grid()
+# plt.show()
+#continue
 
 
 
 
 
 
-    Ht=np.zeros((len(t),len(dict0),len(dict0)),dtype=np.complex128)
+Ht=np.zeros((len(t),len(dict0),len(dict0)),dtype=np.complex128)
 
-    @njit(parallel=True)
-    def build_Ht(H, A,A_x, A_y, Ht):
-        for t_i in prange(len(t)):
-            # if t_i > 
-            for k in range(len(H)):
-                for j in range(len(H)):
-                    Ht[t_i, k, j] = H[k, j] *np.exp(-1j * (A[k][1] - A[j][1]) * A_x[t_i])* np.exp(-1j * (A[k][2] - A[j][2]) * A_y[t_i])
-        return Ht
+@njit(parallel=True)
+def build_Ht(H, A,A_x, A_y, Ht):
+    for t_i in prange(len(t)):
+        # if t_i > 
+        for k in range(len(H)):
+            for j in range(len(H)):
+                Ht[t_i, k, j] = H[k, j] *np.exp(-1j * (A[k][1] - A[j][1]) * A_x[t_i])* np.exp(-1j * (A[k][2] - A[j][2]) * A_y[t_i])
+    return Ht
 
-    Ht = build_Ht(H, A ,A_x,A_y,  Ht)
+Ht = build_Ht(H, A ,A_x,A_y,  Ht)
 
-    wavelength_um = 0.04564 / omega_0
-    intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
-    print(f"Angular frequency: {omega_0} a.u. -> Wavelength: {wavelength_um:.2f} µm")
-    print(f"intensity: {A_0_1} a.u. -> intensity: {intensity_Wcm / 1e9:.3f} 10^9 W/cm^2")
-    @njit
-    def Ha(t, time_steps, Ht):
-        # Find the index of the closest time step
-        t_index = np.argmin(np.abs(time_steps - t))
-        return Ht[t_index]
-
-    @njit
-    def schrodinger(t, psi, time_steps, Ht):
-        return -1j * Ha(t, time_steps, Ht) @ psi
-
-    @njit
-    def RK4_step(f, t, y, dt, time_steps, Ht):
-        k1 = dt * f(t, y, time_steps, Ht)
-        k2 = dt * f(t + 0.5 * dt, y + 0.5 * k1, time_steps, Ht)
-        k3 = dt * f(t + 0.5 * dt, y + 0.5 * k2, time_steps, Ht)
-        k4 = dt * f(t + dt, y + k3, time_steps, Ht)
-        return y + (k1 + 2 * k2 + 2 * k3 + k4) / 6
+wavelength_um = 0.04564 / omega_0
+intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
+print(f"Angular frequency: {omega_0} a.u. -> Wavelength: {wavelength_um:.2f} µm")
+print(f"intensity: {A_0_1} a.u. -> intensity: {intensity_Wcm / 1e9:.3f} 10^9 W/cm^2")
+@njit
+def Ha(t, time_steps, Ht):
+    # Find the index of the closest time step
+    t_index = np.argmin(np.abs(time_steps - t))
+    return Ht[t_index]
+
+@njit
+def schrodinger(t, psi, time_steps, Ht):
+    return -1j * Ha(t, time_steps, Ht) @ psi
+
+@njit
+def RK4_step(f, t, y, dt, time_steps, Ht):
+    k1 = dt * f(t, y, time_steps, Ht)
+    k2 = dt * f(t + 0.5 * dt, y + 0.5 * k1, time_steps, Ht)
+    k3 = dt * f(t + 0.5 * dt, y + 0.5 * k2, time_steps, Ht)
+    k4 = dt * f(t + dt, y + k3, time_steps, Ht)
+    return y + (k1 + 2 * k2 + 2 * k3 + k4) / 6
 
-    # Time steps and initial conditions
-    t_start = time_steps[0]
-    t_end = time_steps[-1]
-    dt = time_steps[1] - time_steps[0]
-    solutions = []
+# Time steps and initial conditions
+t_start = time_steps[0]
+t_end = time_steps[-1]
+dt = time_steps[1] - time_steps[0]
+solutions = []
 
-    dim = len(ev)
-    for i in range(dim):
-        psi0 = ev[:, i]
-        psi_t = psi0
-        psi_t_list = [psi0]
-        for t in time_steps[:-1]:
-            psi_t = RK4_step(schrodinger, t, psi_t, dt, time_steps, Ht)
-            psi_t_list.append(psi_t)
-        solutions.append(np.array(psi_t_list).T)
+dim = len(ev)
+for i in range(dim):
+    psi0 = ev[:, i]
+    psi_t = psi0
+    psi_t_list = [psi0]
+    for t in time_steps[:-1]:
+        psi_t = RK4_step(schrodinger, t, psi_t, dt, time_steps, Ht)
+        psi_t_list.append(psi_t)
+    solutions.append(np.array(psi_t_list).T)
 
-    @njit
-    def calculate_current(solutions, t_index, time_steps, Ht, A):
-            J = np.zeros(2, dtype=np.complex128)
-            H = Ha(time_steps[t_index], time_steps, Ht)
-            for l in range(len(solutions) - 1):
-                for i in range(len(solutions)):
-                    for j in range(len(solutions)):
-                        J[0] += (A[i][1] - A[j][1]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
-                        J[1] += (A[i][2] - A[j][2]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
-            
-            return J
-    #second_pulse_indices = np.where((time_steps >= T_second_pulse_start) & (time_steps <= T_second_pulse_end))[0]
+@njit
+def calculate_current(solutions, t_index, time_steps, Ht, A):
+        J = np.zeros(2, dtype=np.complex128)
+        H = Ha(time_steps[t_index], time_steps, Ht)
+        for l in range(len(solutions) - 1):
+            for i in range(len(solutions)):
+                for j in range(len(solutions)):
+                    J[0] += (A[i][1] - A[j][1]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
+                    J[1] += (A[i][2] - A[j][2]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
+        
+        return J
+#second_pulse_indices = np.where((time_steps >= T_second_pulse_start) & (time_steps <= T_second_pulse_end))[0]
 
-    J_t = [calculate_current(solutions, t_index, time_steps, Ht, A) for t_index in range(len(time_steps))]
-    J_y = [J[1] for J in J_t]
-    J_x = [J[0] for J in J_t]
+J_t = [calculate_current(solutions, t_index, time_steps, Ht, A) for t_index in range(len(time_steps))]
+J_y = [J[1] for J in J_t]
+J_x = [J[0] for J in J_t]
 
-    # plot J_y
+# plot J_y
 
-    dJ_y_dt = np.gradient(J_y, time_steps)
-    dJ_x_dt = np.gradient(J_x, time_steps)
-    dJ_y_dt = dJ_y_dt[7000:]
-    dJ_x_dt = dJ_x_dt[7000:]
+dJ_y_dt = np.gradient(J_y, time_steps)
+dJ_x_dt = np.gradient(J_x, time_steps)
+dJ_y_dt = dJ_y_dt[7000:]
+dJ_x_dt = dJ_x_dt[7000:]
 
-    # Apply a Hann window
-    hann_window = np.hanning(len(dJ_y_dt))
-    dJ_y_dt_windowed = dJ_y_dt * hann_window
+# Apply a Hann window
+hann_window = np.hanning(len(dJ_y_dt))
+dJ_y_dt_windowed = dJ_y_dt * hann_window
 
-    # Perform FFT on the windowed data
-    fft_dJ_y_dt = np.fft.fft(dJ_y_dt_windowed)
-    abs_fft_dJ_y_dt = np.abs(fft_dJ_y_dt) ** 2
+# Perform FFT on the windowed data
+fft_dJ_y_dt = np.fft.fft(dJ_y_dt_windowed)
+abs_fft_dJ_y_dt = np.abs(fft_dJ_y_dt) ** 2
 
-    # Calculate frequencies
-    frequencies = np.fft.fftfreq(len(dJ_y_dt), d=time_steps[1] - time_steps[0])
+# Calculate frequencies
+frequencies = np.fft.fftfreq(len(dJ_y_dt), d=time_steps[1] - time_steps[0])
 
-    positive_frequencies = 2 * np.pi * frequencies[frequencies >= 0]
-    abs_fft_dJ_y_dt_positive = abs_fft_dJ_y_dt[frequencies >= 0]
+positive_frequencies = 2 * np.pi * frequencies[frequencies >= 0]
+abs_fft_dJ_y_dt_positive = abs_fft_dJ_y_dt[frequencies >= 0]
 
-    dJ_x_dt_windowed = dJ_x_dt * hann_window
-    fft_dJ_x_dt = np.fft.fft(dJ_x_dt_windowed)
-    abs_fft_dJ_x_dt = np.abs(fft_dJ_x_dt) ** 2
-    abs_fft_dJ_x_dt_positive = abs_fft_dJ_x_dt[frequencies >= 0]
+dJ_x_dt_windowed = dJ_x_dt * hann_window
+fft_dJ_x_dt = np.fft.fft(dJ_x_dt_windowed)
+abs_fft_dJ_x_dt = np.abs(fft_dJ_x_dt) ** 2
+abs_fft_dJ_x_dt_positive = abs_fft_dJ_x_dt[frequencies >= 0]
 
-    total_intensity_right = abs_fft_dJ_y_dt_positive + abs_fft_dJ_x_dt_positive
+total_intensity_right = abs_fft_dJ_y_dt_positive + abs_fft_dJ_x_dt_positive
 
-    harmonic_10_frequency = 12 * omega_0
-    harmonic_10_index = np.argmin(np.abs(positive_frequencies - harmonic_10_frequency))
-    max_frequency = positive_frequencies[harmonic_10_index]
-    x_ticks = np.arange(0, max_frequency, omega_0)
+harmonic_10_frequency = 12 * omega_0
+harmonic_10_index = np.argmin(np.abs(positive_frequencies - harmonic_10_frequency))
+max_frequency = positive_frequencies[harmonic_10_index]
+x_ticks = np.arange(0, max_frequency, omega_0)
 
-    # intgrate total_intensity_right from at 1, 5, and 7 harmonics around the region half the fundamental frequency
-    half_fundamental_frequency = omega_0 / 2
-    integral_1_r = np.trapz(total_intensity_right[:harmonic_10_index], positive_frequencies[:harmonic_10_index])
-    integral_5_r = np.trapz(total_intensity_right[harmonic_10_index - 5:harmonic_10_index + 5],
-                          positive_frequencies[harmonic_10_index - 5:harmonic_10_index + 5])
-    integral_7_r = np.trapz(total_intensity_right[harmonic_10_index - 7:harmonic_10_index + 7],
-                          positive_frequencies[harmonic_10_index - 7:harmonic_10_index + 7])
-    
+# intgrate total_intensity_right from at 1, 5, and 7 harmonics around the region half the fundamental frequency
+half_fundamental_frequency = omega_0 / 2
+integral_1_r = np.trapz(total_intensity_right[:harmonic_10_index], positive_frequencies[:harmonic_10_index])
+integral_5_r = np.trapz(total_intensity_right[harmonic_10_index - 5:harmonic_10_index + 5],
+                      positive_frequencies[harmonic_10_index - 5:harmonic_10_index + 5])
+integral_7_r = np.trapz(total_intensity_right[harmonic_10_index - 7:harmonic_10_index + 7],
+                      positive_frequencies[harmonic_10_index - 7:harmonic_10_index + 7])
 
-    #
 
+#
 
 
-    # Plot the results for the current time
 
-    # Initialize the plot
+# Plot the results for the current time
 
-    #plt.figure(figsize=(12, 6))
+# Initialize the plot
 
+#plt.figure(figsize=(12, 6))
 
-    #plt.plot(positive_frequencies[:harmonic_10_index], 1e12 * total_intensity_right[:harmonic_10_index])
 
+#plt.plot(positive_frequencies[:harmonic_10_index], 1e12 * total_intensity_right[:harmonic_10_index])
 
-    dt = 12000+1000
 
-    dt_1 = (dt-1000)//2
+dt = 12000+1000
 
+dt_1 = (dt-1000)//2
 
 
-    t_total = np.arange(0, (4+(1/17)*4) * np.pi * n_0 / omega_0, (4+(1/17)*4) * np.pi * n_0 / omega_0 / dt)
-    t1 = np.arange(0, 2 * np.pi * n_0 / omega_0, 2 * np.pi * n_0 / omega_0 / dt_1)
-    t2 = np.arange(0, 2 * np.pi * n_0 / omega_0, 2 * np.pi * n_0 / omega_0 / dt_1)
 
-    t_1 = t1
-    # Generate the A_x signal
-    sin2_term = np.sin(omega_0 * t_1 / (2 * n_0)) ** 2
-    A_x_1 = A_0_1 * sin2_term * np.cos(omega_0 * t_1)
-    A_y_1 = (-1)*A_0_1 * sin2_term * np.sin(omega_0 * t_1)
+t_total = np.arange(0, (4+(1/17)*4) * np.pi * n_0 / omega_0, (4+(1/17)*4) * np.pi * n_0 / omega_0 / dt)
+t1 = np.arange(0, 2 * np.pi * n_0 / omega_0, 2 * np.pi * n_0 / omega_0 / dt_1)
+t2 = np.arange(0, 2 * np.pi * n_0 / omega_0, 2 * np.pi * n_0 / omega_0 / dt_1)
 
-    A_x_2 = A_0_2 * sin2_term * np.cos(omega_0 * t_1)
-    A_y_2 =-1*A_0_2 * sin2_term * np.sin(omega_0 * t_1)
+t_1 = t1
+# Generate the A_x signal
+sin2_term = np.sin(omega_0 * t_1 / (2 * n_0)) ** 2
+A_x_1 = A_0_1 * sin2_term * np.cos(omega_0 * t_1)
+A_y_1 = A_0_1 * sin2_term * np.sin(omega_0 * t_1)
 
+A_x_2 = A_0_2 * sin2_term * np.cos(omega_0 * t_1)
+A_y_2 =-1*A_0_2 * sin2_term * np.sin(omega_0 * t_1)
 
-    zero_padding = np.zeros(1000)
-    A_x = np.concatenate((A_x_1,zero_padding, A_x_2))
-    A_y = np.concatenate((A_y_1,zero_padding, A_y_2))
 
-    # plot A_x and A_y
+zero_padding = np.zeros(1000)
+A_x = np.concatenate((A_x_1,zero_padding, A_x_2))
+A_y = np.concatenate((A_y_1,zero_padding, A_y_2))
 
+# plot A_x and A_y
 
 
-    # Extend time by 25% and generate corresponding extended A_x values
 
+# Extend time by 25% and generate corresponding extended A_x values
 
-    # Extend the time vector
 
-    # Extend A_x by zero padding for the extra time
-    # A_x = np.concatenate((A_x, zero_padding))  # Append zero padding to A_x 
+# Extend the time vector
 
-    # # Extend A_y by zero padding for the extra time
-    # A_y = np.concatenate((A_y, zero_padding))  # Correctly extend A_y
+# Extend A_x by zero padding for the extra time
+# A_x = np.concatenate((A_x, zero_padding))  # Append zero padding to A_x 
 
-    # Ensure A_x and A_y have the same length as t
+# # Extend A_y by zero padding for the extra time
+# A_y = np.concatenate((A_y, zero_padding))  # Correctly extend A_y
 
-    t = t_total
-    time_steps  = t
-    wavelength_um = 0.04564 / omega_0
-    intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
-    print(t[-1])
+# Ensure A_x and A_y have the same length as t
 
-    # A_y = A_y[9000:]
+t = t_total
+time_steps  = t
+wavelength_um = 0.04564 / omega_0
+intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
+print(t[-1])
 
-    # plt.figure(figsize=(16, 8))
-    # plt.plot(time_steps,A_y, label='A_x', linewidth=2)
-    # plt.plot(time_steps, A_x, label='A_y', linewidth=2)
-    # plt.xlabel('Time (a.u.)', fontsize=14)
-    # plt.ylabel('Field Amplitude (a.u.)', fontsize=14)
+# A_y = A_y[9000:]
 
-    # plt.title(f'Pump-Probe Field Amplitudes, $A_0$ = {intensity_Wcm/ 1e10:.3f} 10^10 W/cm^2", $\omega_0 = ${wavelength_um:.2f} $\mu$m', fontsize=16)
-    # plt.legend()
-    # # make grid 
-    # plt.grid()
-    # plt.show()
-    #continue
+# plt.figure(figsize=(16, 8))
+# plt.plot(time_steps,A_y, label='A_x', linewidth=2)
+# plt.plot(time_steps, A_x, label='A_y', linewidth=2)
+# plt.xlabel('Time (a.u.)', fontsize=14)
+# plt.ylabel('Field Amplitude (a.u.)', fontsize=14)
 
+# plt.title(f'Pump-Probe Field Amplitudes, $A_0$ = {intensity_Wcm/ 1e10:.3f} 10^10 W/cm^2", $\omega_0 = ${wavelength_um:.2f} $\mu$m', fontsize=16)
+# plt.legend()
+# # make grid 
+# plt.grid()
+# plt.show()
+#continue
 
 
 
 
 
-    Ht=np.zeros((len(t),len(dict0),len(dict0)),dtype=np.complex128)
 
-    @njit(parallel=True)
-    def build_Ht(H, A,A_x, A_y, Ht):
-        for t_i in prange(len(t)):
-            # if t_i > 
-            for k in range(len(H)):
-                for j in range(len(H)):
-                    Ht[t_i, k, j] = H[k, j] *np.exp(-1j * (A[k][1] - A[j][1]) * A_x[t_i])* np.exp(-1j * (A[k][2] - A[j][2]) * A_y[t_i])
-        return Ht
+Ht=np.zeros((len(t),len(dict0),len(dict0)),dtype=np.complex128)
 
-    Ht = build_Ht(H, A ,A_x,A_y,  Ht)
+@njit(parallel=True)
+def build_Ht(H, A,A_x, A_y, Ht):
+    for t_i in prange(len(t)):
+        # if t_i > 
+        for k in range(len(H)):
+            for j in range(len(H)):
+                Ht[t_i, k, j] = H[k, j] *np.exp(-1j * (A[k][1] - A[j][1]) * A_x[t_i])* np.exp(-1j * (A[k][2] - A[j][2]) * A_y[t_i])
+    return Ht
 
-    wavelength_um = 0.04564 / omega_0
-    intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
-    print(f"Angular frequency: {omega_0} a.u. -> Wavelength: {wavelength_um:.2f} µm")
-    print(f"intensity: {A_0_1} a.u. -> intensity: {intensity_Wcm / 1e9:.3f} 10^9 W/cm^2")
-    @njit
-    def Ha(t, time_steps, Ht):
-        # Find the index of the closest time step
-        t_index = np.argmin(np.abs(time_steps - t))
-        return Ht[t_index]
+Ht = build_Ht(H, A ,A_x,A_y,  Ht)
 
-    @njit
-    def schrodinger(t, psi, time_steps, Ht):
-        return -1j * Ha(t, time_steps, Ht) @ psi
+wavelength_um = 0.04564 / omega_0
+intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
+print(f"Angular frequency: {omega_0} a.u. -> Wavelength: {wavelength_um:.2f} µm")
+print(f"intensity: {A_0_1} a.u. -> intensity: {intensity_Wcm / 1e9:.3f} 10^9 W/cm^2")
+@njit
+def Ha(t, time_steps, Ht):
+    # Find the index of the closest time step
+    t_index = np.argmin(np.abs(time_steps - t))
+    return Ht[t_index]
 
-    @njit
-    def RK4_step(f, t, y, dt, time_steps, Ht):
-        k1 = dt * f(t, y, time_steps, Ht)
-        k2 = dt * f(t + 0.5 * dt, y + 0.5 * k1, time_steps, Ht)
-        k3 = dt * f(t + 0.5 * dt, y + 0.5 * k2, time_steps, Ht)
-        k4 = dt * f(t + dt, y + k3, time_steps, Ht)
-        return y + (k1 + 2 * k2 + 2 * k3 + k4) / 6
+@njit
+def schrodinger(t, psi, time_steps, Ht):
+    return -1j * Ha(t, time_steps, Ht) @ psi
 
-    # Time steps and initial conditions
-    t_start = time_steps[0]
-    t_end = time_steps[-1]
-    dt = time_steps[1] - time_steps[0]
-    solutions = []
+@njit
+def RK4_step(f, t, y, dt, time_steps, Ht):
+    k1 = dt * f(t, y, time_steps, Ht)
+    k2 = dt * f(t + 0.5 * dt, y + 0.5 * k1, time_steps, Ht)
+    k3 = dt * f(t + 0.5 * dt, y + 0.5 * k2, time_steps, Ht)
+    k4 = dt * f(t + dt, y + k3, time_steps, Ht)
+    return y + (k1 + 2 * k2 + 2 * k3 + k4) / 6
 
-    dim = len(ev)
-    for i in range(dim):
-        psi0 = ev[:, i]
-        psi_t = psi0
-        psi_t_list = [psi0]
-        for t in time_steps[:-1]:
-            psi_t = RK4_step(schrodinger, t, psi_t, dt, time_steps, Ht)
-            psi_t_list.append(psi_t)
-        solutions.append(np.array(psi_t_list).T)
+# Time steps and initial conditions
+t_start = time_steps[0]
+t_end = time_steps[-1]
+dt = time_steps[1] - time_steps[0]
+solutions = []
 
-    @njit
-    def calculate_current(solutions, t_index, time_steps, Ht, A):
-            J = np.zeros(2, dtype=np.complex128)
-            H = Ha(time_steps[t_index], time_steps, Ht)
-            for l in range(len(solutions) - 1):
-                for i in range(len(solutions)):
-                    for j in range(len(solutions)):
-                        J[0] += (A[i][1] - A[j][1]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
-                        J[1] += (A[i][2] - A[j][2]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
-            
-            return J
-    #second_pulse_indices = np.where((time_steps >= T_second_pulse_start) & (time_steps <= T_second_pulse_end))[0]
+dim = len(ev)
+for i in range(dim):
+    psi0 = ev[:, i]
+    psi_t = psi0
+    psi_t_list = [psi0]
+    for t in time_steps[:-1]:
+        psi_t = RK4_step(schrodinger, t, psi_t, dt, time_steps, Ht)
+        psi_t_list.append(psi_t)
+    solutions.append(np.array(psi_t_list).T)
 
-    J_t = [calculate_current(solutions, t_index, time_steps, Ht, A) for t_index in range(len(time_steps))]
-    J_y = [J[1] for J in J_t]
-    J_x = [J[0] for J in J_t]
+@njit
+def calculate_current(solutions, t_index, time_steps, Ht, A):
+        J = np.zeros(2, dtype=np.complex128)
+        H = Ha(time_steps[t_index], time_steps, Ht)
+        for l in range(len(solutions) - 1):
+            for i in range(len(solutions)):
+                for j in range(len(solutions)):
+                    J[0] += (A[i][1] - A[j][1]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
+                    J[1] += (A[i][2] - A[j][2]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
+        
+        return J
+#second_pulse_indices = np.where((time_steps >= T_second_pulse_start) & (time_steps <= T_second_pulse_end))[0]
 
-    # plot J_y
+J_t = [calculate_current(solutions, t_index, time_steps, Ht, A) for t_index in range(len(time_steps))]
+J_y = [J[1] for J in J_t]
+J_x = [J[0] for J in J_t]
 
-    dJ_y_dt = np.gradient(J_y, time_steps)
-    dJ_x_dt = np.gradient(J_x, time_steps)
-    dJ_y_dt = dJ_y_dt[7000:]
-    dJ_x_dt = dJ_x_dt[7000:]
+# plot J_y
 
-    # Apply a Hann window
-    hann_window = np.hanning(len(dJ_y_dt))
-    dJ_y_dt_windowed = dJ_y_dt * hann_window
+dJ_y_dt = np.gradient(J_y, time_steps)
+dJ_x_dt = np.gradient(J_x, time_steps)
+dJ_y_dt = dJ_y_dt[7000:]
+dJ_x_dt = dJ_x_dt[7000:]
 
-    # Perform FFT on the windowed data
-    fft_dJ_y_dt = np.fft.fft(dJ_y_dt_windowed)
-    abs_fft_dJ_y_dt = np.abs(fft_dJ_y_dt) ** 2
+# Apply a Hann window
+hann_window = np.hanning(len(dJ_y_dt))
+dJ_y_dt_windowed = dJ_y_dt * hann_window
 
-    # Calculate frequencies
-    frequencies = np.fft.fftfreq(len(dJ_y_dt), d=time_steps[1] - time_steps[0])
+# Perform FFT on the windowed data
+fft_dJ_y_dt = np.fft.fft(dJ_y_dt_windowed)
+abs_fft_dJ_y_dt = np.abs(fft_dJ_y_dt) ** 2
 
-    positive_frequencies = 2 * np.pi * frequencies[frequencies >= 0]
-    abs_fft_dJ_y_dt_positive = abs_fft_dJ_y_dt[frequencies >= 0]
+# Calculate frequencies
+frequencies = np.fft.fftfreq(len(dJ_y_dt), d=time_steps[1] - time_steps[0])
 
-    dJ_x_dt_windowed = dJ_x_dt * hann_window
-    fft_dJ_x_dt = np.fft.fft(dJ_x_dt_windowed)
-    abs_fft_dJ_x_dt = np.abs(fft_dJ_x_dt) ** 2
-    abs_fft_dJ_x_dt_positive = abs_fft_dJ_x_dt[frequencies >= 0]
+positive_frequencies = 2 * np.pi * frequencies[frequencies >= 0]
+abs_fft_dJ_y_dt_positive = abs_fft_dJ_y_dt[frequencies >= 0]
 
-    total_intensity_left = abs_fft_dJ_y_dt_positive + abs_fft_dJ_x_dt_positive
+dJ_x_dt_windowed = dJ_x_dt * hann_window
+fft_dJ_x_dt = np.fft.fft(dJ_x_dt_windowed)
+abs_fft_dJ_x_dt = np.abs(fft_dJ_x_dt) ** 2
+abs_fft_dJ_x_dt_positive = abs_fft_dJ_x_dt[frequencies >= 0]
 
-    harmonic_10_frequency = 12 * omega_0
-    harmonic_10_index = np.argmin(np.abs(positive_frequencies - harmonic_10_frequency))
-    max_frequency = positive_frequencies[harmonic_10_index]
-    x_ticks = np.arange(0, max_frequency, omega_0)
+total_intensity_left = abs_fft_dJ_y_dt_positive + abs_fft_dJ_x_dt_positive
 
+harmonic_10_frequency = 12 * omega_0
+harmonic_10_index = np.argmin(np.abs(positive_frequencies - harmonic_10_frequency))
+max_frequency = positive_frequencies[harmonic_10_index]
+x_ticks = np.arange(0, max_frequency, omega_0)
 
-    half_fundamental_frequency = omega_0 / 2
-    integral_1_l = np.trapz(total_intensity_left[:harmonic_10_index], positive_frequencies[:harmonic_10_index])
-    integral_5_l = np.trapz(total_intensity_left[harmonic_10_index - 5:harmonic_10_index + 5],
-                          positive_frequencies[harmonic_10_index - 5:harmonic_10_index + 5])
-    integral_7_l = np.trapz(total_intensity_left[harmonic_10_index - 7:harmonic_10_index + 7],
-                          positive_frequencies[harmonic_10_index - 7:harmonic_10_index + 7])
-    
-    # fill integral_arr with circular dichroism values for the 1, 5, and 7 harmonics
-    
-    integral_arr[ind][0] = (integral_1_r - integral_1_l)/ (integral_1_r + integral_1_l)
-    integral_arr[ind][1] = (integral_5_r - integral_5_l)/ (integral_5_r + integral_5_l)
-    integral_arr[ind][2] = (integral_7_r - integral_7_l)/ (integral_7_r + integral_7_l)
+
+half_fundamental_frequency = omega_0 / 2
+integral_1_l = np.trapz(total_intensity_left[:harmonic_10_index], positive_frequencies[:harmonic_10_index])
+integral_5_l = np.trapz(total_intensity_left[harmonic_10_index - 5:harmonic_10_index + 5],
+                      positive_frequencies[harmonic_10_index - 5:harmonic_10_index + 5])
+integral_7_l = np.trapz(total_intensity_left[harmonic_10_index - 7:harmonic_10_index + 7],
+                      positive_frequencies[harmonic_10_index - 7:harmonic_10_index + 7])
+
+# fill integral_arr with circular dichroism values for the 1, 5, and 7 harmonics
+
+int1 = (integral_1_r - integral_1_l)/ (integral_1_r + integral_1_l)
+int5 = (integral_5_r - integral_5_l)/ (integral_5_r + integral_5_l)
+int7 = (integral_7_r - integral_7_l)/ (integral_7_r + integral_7_l)
        
 
-    # plot circular dichroism values for the 1, 5, and 7 harmonics 
-plt.figure(figsize=(12, 6))
-plt.plot(amplitudes, integral_arr[:, 0], label='1st Harmonic', marker='o')
-plt.plot(amplitudes, integral_arr[:, 1], label='5th Harmonic', marker='o')
-plt.plot(amplitudes, integral_arr[:, 2], label='7th Harmonic', marker='o')
-# font size of ticks
+csv_file = "../data/results.csv"
 
-plt.xticks(fontsize=14)
-plt.yticks(fontsize=14)
+with open(csv_file, 'a', newline='') as f:
+    writer = csv.writer(f)
+    
+    writer.writerow(["amplitude", "int1", "int5", "int7"])
+    writer.writerow([A_0_1, int1, int5, int7])
 
 
-    # Initialize the plot
-
-    #plt.figure(figsize=(12, 6))
-
-
-    #plt.plot(positive_frequencies[:harmonic_10_index], 1e12 * total_intensity_left[:harmonic_10_index])
-
-# Set plot labels and title
-plt.legend()
-plt.xlabel(r'$A_0$ (a.u.)', fontsize=14)
-plt.ylabel('CD', fontsize=16)
-plt.savefig(f'../plots/circular_dichroism_vs_amplitude_topo_left.pdf')
-plt.show()
-
+exit()
 
 # plt.yscale('log')
 # plt.xlabel('Harmonic Order')
