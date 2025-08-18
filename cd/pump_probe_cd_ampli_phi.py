@@ -799,10 +799,10 @@ for ind, trial in enumerate(amplitudes):
 
 
     half_fundamental_frequency = omega_0 / 2
-    integral_1_l = np.trapz(total_intensity_left[:harmonic_10_index], positive_frequencies[:harmonic_10_index])
-    integral_5_l = np.trapz(total_intensity_left[harmonic_10_index - 5:harmonic_10_index + 5],
+    integral_1_l = np.trapezoid(total_intensity_left[:harmonic_10_index], positive_frequencies[:harmonic_10_index])
+    integral_5_l = np.trapezoid(total_intensity_left[harmonic_10_index - 5:harmonic_10_index + 5],
                           positive_frequencies[harmonic_10_index - 5:harmonic_10_index + 5])
-    integral_7_l = np.trapz(total_intensity_left[harmonic_10_index - 7:harmonic_10_index + 7],
+    integral_7_l = np.trapezoid(total_intensity_left[harmonic_10_index - 7:harmonic_10_index + 7],
                           positive_frequencies[harmonic_10_index - 7:harmonic_10_index + 7])
     
     # fill integral_arr with circular dichroism values for the 1, 5, and 7 harmonics
