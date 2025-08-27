@@ -188,7 +188,7 @@ def plot_edge():
     
     # Print information
 
-m = 2 # Flake with side size m
+m = 5 # Flake with side size m
 
 # Create the hexagonal lattice and process it
 G = nx.hexagonal_lattice_graph(2 * m - 1, 2 * m - 1, periodic=False, with_positions=True)
@@ -401,10 +401,7 @@ def hamiltonian(M,t_1,t_2):
 
 
 #############section 2: solving the time-indepednent Schrödinger equation in real space and plotting the eigenvalues vs space index and spatial distribution of the eigenvectors, this part has been tested so you can skip it as well#################
-t1 = -0.1
-Delta = 0.01
-t2 = -0.1
-H=hamiltonian(Delta,t1,t2)
+
 
 
 

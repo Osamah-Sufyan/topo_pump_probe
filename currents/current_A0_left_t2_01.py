@@ -188,7 +188,7 @@ def plot_edge():
     
     # Print information
 
-m = 2 # Flake with side size m
+m = 5 # Flake with side size m
 
 # Create the hexagonal lattice and process it
 G = nx.hexagonal_lattice_graph(2 * m - 1, 2 * m - 1, periodic=False, with_positions=True)
@@ -401,10 +401,7 @@ def hamiltonian(M,t_1,t_2):
 
 
 #############section 2: solving the time-indepednent Schrödinger equation in real space and plotting the eigenvalues vs space index and spatial distribution of the eigenvectors, this part has been tested so you can skip it as well#################
-t1 = -0.1
-Delta = 0.01
-t2 = 0.03
-H=hamiltonian(Delta,t1,t2)
+
 
 
 
@@ -528,42 +525,34 @@ time_steps = t
 # plt.savefig('pulse_sequence.pdf')
 #plt.show()
 
-Ht=np.zeros((len(t),len(dict0),len(dict0)),dtype=np.complex128)
-
-@njit(parallel=True)
-def build_Ht(H, A, A_x, A_y, Ht):
-    for t_i in prange(len(t)):
-        # if t_i > 
-        for k in range(len(H)):
-            for j in range(len(H)):
-                Ht[t_i, k, j] = H[k, j] * np.exp(-1j * (A[k][1] - A[j][1]) * A_x[t_i])* np.exp(-1j * (A[k][2] - A[j][2]) *(-1)* A_y[t_i])
-    return Ht
-
-Ht = build_Ht(H, A ,A_x,A_y,  Ht)
-
-wavelength_um = 0.04564 / omega_0
-intensity_Wcm = 3.51e13 * (omega_0 * A_0) ** 2
-print(f"Angular frequency: {omega_0} a.u. -> Wavelength: {wavelength_um:.2f} µm")
-print(f"intensity: {A_0} a.u. -> intensity: {intensity_Wcm / 1e9:.3f} 10^9 W/cm^2")
 @njit
-def Ha(t, time_steps, Ht):
-    # Find the index of the closest time step
+def compute_Ht_single(H, A, A_x_val, A_y_val):
+    """Compute H(t) for a single time step"""
+    Ht_single = np.zeros_like(H, dtype=np.complex128)
+    for k in range(len(H)):
+        for j in range(len(H)):
+            Ht_single[k, j] = H[k, j] * np.exp(-1j * (A[k][1] - A[j][1]) * A_x_val) * np.exp(-1j * (A[k][2] - A[j][2]) * (-1) * A_y_val)
+    return Ht_single
+
+@njit
+def Ha_on_demand(t, time_steps, H, A, A_x, A_y):
+    """Compute H(t) on demand without storing the entire array"""
     t_index = np.argmin(np.abs(time_steps - t))
-    return Ht[t_index]
+    return compute_Ht_single(H, A, A_x[t_index], A_y[t_index])
 
 @njit
-def schrodinger(t, psi, time_steps, Ht):
-    return -1j * Ha(t, time_steps, Ht) @ psi
+def schrodinger_on_demand(t, psi, time_steps, H, A, A_x, A_y):
+    return -1j * Ha_on_demand(t, time_steps, H, A, A_x, A_y) @ psi
 
 @njit
-def RK4_step(f, t, y, dt, time_steps, Ht):
-    k1 = dt * f(t, y, time_steps, Ht)
-    k2 = dt * f(t + 0.5 * dt, y + 0.5 * k1, time_steps, Ht)
-    k3 = dt * f(t + 0.5 * dt, y + 0.5 * k2, time_steps, Ht)
-    k4 = dt * f(t + dt, y + k3, time_steps, Ht)
+def RK4_step_on_demand(f, t, y, dt, time_steps, H, A, A_x, A_y):
+    k1 = dt * f(t, y, time_steps, H, A, A_x, A_y)
+    k2 = dt * f(t + 0.5 * dt, y + 0.5 * k1, time_steps, H, A, A_x, A_y)
+    k3 = dt * f(t + 0.5 * dt, y + 0.5 * k2, time_steps, H, A, A_x, A_y)
+    k4 = dt * f(t + dt, y + k3, time_steps, H, A, A_x, A_y)
     return y + (k1 + 2 * k2 + 2 * k3 + k4) / 6
 
-# Time steps and initial conditions
+# Modified time evolution
 t_start = time_steps[0]
 t_end = time_steps[-1]
 dt = time_steps[1] - time_steps[0]
@@ -575,27 +564,27 @@ for i in range(dim):
     psi_t = psi0
     psi_t_list = [psi0]
     for t in time_steps[:-1]:
-        psi_t = RK4_step(schrodinger, t, psi_t, dt, time_steps, Ht)
+        psi_t = RK4_step_on_demand(schrodinger_on_demand, t, psi_t, dt, time_steps, H, A, A_x, A_y)
         psi_t_list.append(psi_t)
     solutions.append(np.array(psi_t_list).T)
 
+# Modified current calculation
 @njit
-def calculate_current(solutions, t_index, time_steps, Ht, vertical_edge_indices):
+def calculate_current_on_demand(solutions, t_index, time_steps, H, A, A_x, A_y, vertical_edge_indices):
     J = np.zeros(2, dtype=np.complex128)
-    H = Ha(time_steps[t_index], time_steps, Ht)
+    Ht_current = compute_Ht_single(H, A, A_x[t_index], A_y[t_index])
+    
     for l in range(len(solutions)//2 - 1):
         for i, i1 in enumerate(vertical_edge_indices):
             for j, j1 in enumerate(vertical_edge_indices):
-                
-
-                    J[0] += (A[i1][1] - A[j1][1]) * -1j * np.conj(solutions[l][i1][t_index]) * H[i1][j1] * solutions[l][j1][t_index]
-                    J[1] += (A[i1][2] - A[j1][2]) * -1j * np.conj(solutions[l][i1][t_index]) * H[i1][j1] * solutions[l][j1][t_index]
+                J[0] += (A[i1][1] - A[j1][1]) * -1j * np.conj(solutions[l][i1][t_index]) * Ht_current[i1][j1] * solutions[l][j1][t_index]
+                J[1] += (A[i1][2] - A[j1][2]) * -1j * np.conj(solutions[l][i1][t_index]) * Ht_current[i1][j1] * solutions[l][j1][t_index]
                     
     return J
-#second_pulse_indices = np.where((time_steps >= T_second_pulse_start) & (time_steps <= T_second_pulse_end))[0]
 
-J_t = [calculate_current(solutions, t_index, time_steps, Ht, vertical_edge_indices_all) for t_index in range(len(time_steps))]
-#J_second_pulse = [J_t[index] for index in second_pulse_indices]
+# Calculate current with on-demand H(t) computation
+J_t = [calculate_current_on_demand(solutions, t_index, time_steps, H, A, A_x, A_y, vertical_edge_indices_all) 
+       for t_index in range(len(time_steps))]
 
 J_x = [J[0] for J in J_t]
 J_y = [J[1] for J in J_t]
@@ -609,10 +598,10 @@ num = random.randint(0, 10000)
 # Plot J_x and J_y multiplied by 6 vs time
 average_J_x = np.mean(J_x[-2000:])
 average_J_y = np.mean(J_y[-2000:])
-current_x.append(average_J_x)
-current_y.append(average_J_y)
+current_x.append(average_J_x.real)
+current_y.append(average_J_y.real)
 
-csv_filename = "../data/current_A0_left_t2_0.1.csv"
+csv_filename = "../data/current_A0_left_t2_01.csv"
 file_exists = os.path.isfile(csv_filename)
 
 with open(csv_filename, mode="a", newline="") as f:
