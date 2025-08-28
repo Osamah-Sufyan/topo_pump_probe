@@ -1,4 +1,65 @@
 Running with param=0.00
-C:\Users\User\Documents\Topo_HHG\currents\current_t2_right_A0_01.py:557: NumbaPerformanceWarning: [1m[1m[1m'@' is fasC:\Users\User\Documents\Topo_HHG\currents\current_t2_right_A0_01.py:557:C:\Users\User\Documents\Topo_HHG\currents\current_t2_right_A0_01.py:557: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguous arrays, called on (Array(complex128, 2, 'C', False, aligned=True), Array(complex128, 1, 'A', False, aligned=True))[0m[0m[0m
-  k1 = dt * f(t, y, time_steps, Ht)
-(t, y, time_steps, Ht)
+C:\Users\User\Documents\Topo_HHG\currents\current_t2_right_A0_01.py:557: NumbaPerformanceWarning: [1m[1m[1m'@' is fasC:\Users\User\Documents\Topo_HHG\currents\current_t2_right_A0_01.py:557:C:\Users\User\Documents\Topo_HHG\currents\current_t2_right_A0_01.py:557: NumbaPerformanceWarning: [1m[1m[1m'11
+11
+11
+Angular frequency: 0.057 a.u. -> Wavelength: 0.80 µm
+intensity: 0.15 a.u. -> intensity: 2.566 10^9 W/cm^2
+elength: 0.80 µm
+intens11
+11
+11
+Angular frequency: 0.057 a.u. -> Wav11
+11
+11
+Angular frequency: 0.057 a.u. -> Wavelength: 0.80 µm
+intensity: 0.15 a.u. -> intensity: 2.566 10^9 W/cm^2
+ity: 2.566 10^9 W/cm^2
+75, in <module>
+    psi_t = RK4_step(schrodinger, t, psi_t, dt, time_steps, Ht)
+MemoryError: Allocation failed (probably too large).
+ time_steps, Ht)
+MemoryError: Allocation failed (probably too large).
+Running with param=0.10
+C:\Users\User\Documents\C:\Users\User\Documents\Topo_HHG\currents\current_t2_right_A0_01.py:557: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguous arraysC:\Users\User\Documents\Topo_HHG\currents\current_t2_right_A0_01.py:557: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguo11
+11
+11
+Angular frequency: 0.057 a.u. -> Wavelength: 0.80 µm
+intensity: 0.15 a.u. -> intensity: 2.566 10^9 W/cm^2
+11
+11
+11
+Angular freq11
+11
+11
+Angular freq11
+11
+11
+Angular frequency: 0.057 a.u. -> Wavelength: 0.80 µm
+intensity: 0.15 a.u. -> intensity: 2.566 10^9 W/cm^2
+ity: 0.15 a.u. -> intensity: 2.566 10^9 W/cm^2
+si_t_list).T)
+                     ~~~~~~~~^^^^^^^^^^^^
+numpy._core._exceptions._ArrayMemoryError: Unable to allocate 38.9 MiB for an array with shape (17000, 150) and data type complex128
+d data type complex128
+xceptions._ArrayMemoryError: Unable to allocate 38.9 MiB for an array with shape (17000, 150) and data type complex128
+Running with param=0.20
+C:\Users\User\Documents\Topo_HHG\currents\current_t2_right_A0_01.py:557: NumbaPerformanceWarningC:\Users\User\Documents\Topo_HHG\currents\current_t2_right_A0_01.py:557: NumbaPerformanceWarningC:\Users\User\Documents\Topo_HHG\currents\current_t2_right_A0_01.py:557: NumbaPerformanceWarning: [1m[1m[1m'11
+11
+11
+Angular frequency: 0.057 a.u. -> Wavelength: 0.80 µm
+intensity: 0.15 a.u. -> intensity: 2.566 10^9 W/cm^2
+ity: 2.566 10^9 W/cm^2
+11
+11
+11
+Angular frequency: 0.057 a.u. -> Wavelength: 0.80 µm
+intensity: 0.15 a.u. -> intensity: 2.566 10^9 W/cm^2
+elength: 0.80 µm
+intensity: 0.15 a.u. -> intensity: 2.566 10^9 W/cm^2
+77, in <module>
+    solutions.append(np.array(psi_t_list).T)
+                     ~~~~~~~~^^^^^^^^^^^^
+numpy._core._exceptions._ArrayMemoryError: Unable to allocate 38.9 MiB for an array with shape (17000, 150) and data type complex128
+ror: Unable to allocate 38.9 MiB for an array with shape (17000, 150) and data type complex128
+Running with param=0.30
+C:\Users\User\Documents\
