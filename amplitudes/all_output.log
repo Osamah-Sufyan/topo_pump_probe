@@ -1,0 +1,54 @@
+Running with param=0
+Running with param=0.05
+Running with param=0.1
+Running with param=0.15
+Running with param=0.2
+Running with param=0.25
+Running with param=0.3
+Running with param=0.35
+Running with param=0.4
+/Users/osamahsufyan/Documents/hhg_topo/pump_probe/topo_pump_probe/amplitudes/pump_probe_ampli_topo_left.py:558: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguous arrays, called on (Array(complex128, 2, 'C', False, aligned=True), Array(complex128, 1, 'A', False, aligned=True))[0m[0m[0m
+  k1 = dt * f(t, y, time_steps, H, A, A_x, A_y)
+/Users/osamahsufyan/Documents/hhg_topo/pump_probe/topo_pump_probe/amplitudes/pump_probe_ampli_topo_left.py:558: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguous arrays, called on (Array(complex128, 2, 'C', False, aligned=True), Array(complex128, 1, 'A', False, aligned=True))[0m[0m[0m
+  k1 = dt * f(t, y, time_steps, H, A, A_x, A_y)
+/Users/osamahsufyan/Documents/hhg_topo/pump_probe/topo_pump_probe/amplitudes/pump_probe_ampli_topo_left.py:558: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguous arrays, called on (Array(complex128, 2, 'C', False, aligned=True), Array(complex128, 1, 'A', False, aligned=True))[0m[0m[0m
+  k1 = dt * f(t, y, time_steps, H, A, A_x, A_y)
+/Users/osamahsufyan/Documents/hhg_topo/pump_probe/topo_pump_probe/amplitudes/pump_probe_ampli_topo_left.py:558: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguous arrays, called on (Array(complex128, 2, 'C', False, aligned=True), Array(complex128, 1, 'A', False, aligned=True))[0m[0m[0m
+  k1 = dt * f(t, y, time_steps, H, A, A_x, A_y)
+/Users/osamahsufyan/Documents/hhg_topo/pump_probe/topo_pump_probe/amplitudes/pump_probe_ampli_topo_left.py:558: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguous arrays, called on (Array(complex128, 2, 'C', False, aligned=True), Array(complex128, 1, 'A', False, aligned=True))[0m[0m[0m
+  k1 = dt * f(t, y, time_steps, H, A, A_x, A_y)
+/Users/osamahsufyan/Documents/hhg_topo/pump_probe/topo_pump_probe/amplitudes/pump_probe_ampli_topo_left.py:558: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguous arrays, called on (Array(complex128, 2, 'C', False, aligned=True), Array(complex128, 1, 'A', False, aligned=True))[0m[0m[0m
+  k1 = dt * f(t, y, time_steps, H, A, A_x, A_y)
+/Users/osamahsufyan/Documents/hhg_topo/pump_probe/topo_pump_probe/amplitudes/pump_probe_ampli_topo_left.py:558: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguous arrays, called on (Array(complex128, 2, 'C', False, aligned=True), Array(complex128, 1, 'A', False, aligned=True))[0m[0m[0m
+  k1 = dt * f(t, y, time_steps, H, A, A_x, A_y)
+/Users/osamahsufyan/Documents/hhg_topo/pump_probe/topo_pump_probe/amplitudes/pump_probe_ampli_topo_left.py:558: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguous arrays, called on (Array(complex128, 2, 'C', False, aligned=True), Array(complex128, 1, 'A', False, aligned=True))[0m[0m[0m
+  k1 = dt * f(t, y, time_steps, H, A, A_x, A_y)
+/Users/osamahsufyan/Documents/hhg_topo/pump_probe/topo_pump_probe/amplitudes/pump_probe_ampli_topo_left.py:558: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguous arrays, called on (Array(complex128, 2, 'C', False, aligned=True), Array(complex128, 1, 'A', False, aligned=True))[0m[0m[0m
+  k1 = dt * f(t, y, time_steps, H, A, A_x, A_y)
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
