@@ -62,4 +62,5 @@ intensity: 0.15 a.u. -> intensity: 2.566 10^9 W/cm^2
 numpy._core._exceptions._ArrayMemoryError: Unable to allocate 38.9 MiB for an array with shape (17000, 150) and data type complex128
 ror: Unable to allocate 38.9 MiB for an array with shape (17000, 150) and data type complex128
 Running with param=0.30
-C:\Users\User\Documents\
+C:\Users\User\Documents\Topo_HHG\currents\current_t2_right_A0_01.py:557: NumbaPerformanceWarning: [1m[1m[1m'@' is faster on contiguous arrays, called on (Array(complex128, 2, 'C', False, aligned=True), Array(complex128, 1, 'A', False, aligned=True))[0m[0m[0m
+  k1 = dt * f(t, y, time_steps, Ht)

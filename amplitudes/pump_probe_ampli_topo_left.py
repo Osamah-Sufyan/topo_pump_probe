@@ -1,5 +1,3 @@
-
-##TESTED##
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,18 +20,9 @@ from scipy.signal import savgol_filter, butter, filtfilt
 
 from matplotlib.patches import Arc, RegularPolygon
 from numpy import radians as rad
-from concurrent.futures import ProcessPoolExecutor
-from concurrent.futures import ThreadPoolExecutor
-
-from multiprocessing import Pool
-from tqdm import tqdm
-import csv 
-import os
 import sys
-
-
-
-
+import os
+import csv
 
 def node_dist(x, y, cx, cy):
     """Calculate the Manhattan distance of a node from the lattice center."""
@@ -130,7 +119,7 @@ def plot_hexagonal_flake(G, pos, m, vertical_edge_nodes):
     """Plot the hexagonal flake with highlighted vertical edge."""
     edge_G = G.subgraph(vertical_edge_nodes)
     
-    #plt.figure(figsize=(8, 8))
+    plt.figure(figsize=(8, 8))
     
     # Plot all atoms in grey
     nx.draw_networkx_nodes(G, pos, node_color='lightgrey', node_size=100)
@@ -169,7 +158,7 @@ def plot_hexagonal_flake(G, pos, m, vertical_edge_nodes):
     plt.axis('equal')
     plt.title(f'Hexagonal Flake (m={m}) with Vertical Edge Highlighted')
     #plt.savefig('plots/hexagonal_flake.png')
-    #plt.show()
+    plt.show()
 
 
 
@@ -199,7 +188,7 @@ def plot_edge():
     
     # Print information
 
-m = 5 # Flake with side size m
+m = 2 # Flake with side size m
 
 # Create the hexagonal lattice and process it
 G = nx.hexagonal_lattice_graph(2 * m - 1, 2 * m - 1, periodic=False, with_positions=True)
@@ -262,10 +251,12 @@ coord_to_index = {tuple(A[i, 1:]): int(A[i, 0]) for i in range(len(A))}
 
 
 vertical_edge_indices1 = [coord_to_index[tuple(pos[node])] for node in vertical_edge_nodes1]
-
+print(len(vertical_edge_indices1))
 vertical_edge_indices2 = [coord_to_index[tuple(pos[node])] for node in vertical_edge_nodes2]
+print(len(vertical_edge_indices2))
 
-vertical_edge_indices_all = vertical_edge_indices1 + vertical_edge_indices2
+vertical_edge_indices_all = vertical_edge_indices1 #+ vertical_edge_indices2
+print(len(vertical_edge_indices1))
 
 
 
@@ -415,7 +406,6 @@ def hamiltonian(M,t_1,t_2):
 
 
 
-
 # Confirm the lengths of both t and A_x
 
 # Plot the results
@@ -423,25 +413,22 @@ def hamiltonian(M,t_1,t_2):
 
 
 
-#amplitudes = [0,0.05,0.1,0.15,0.2 ,0.25]  # Values of t2 to test
 
-# import trial value from via system arguments
 trial = float(sys.argv[1]) 
 
+current_x = []
+current_y = []
 
-
-
-
-
-t2 = -0.1
+trial = float(sys.argv[1])
+t2 = 0
 
 
 t1 = -0.1
-Delta = 0.1
+Delta = 0
 
 H=hamiltonian(Delta,t1,t2)
-A_0_1 = trial
-A_0_2 = 0.2
+A_0_1 = 0.01
+A_0_2 = trial 
 
 
 
@@ -474,85 +461,107 @@ zero_padding = np.zeros(1000)
 A_x = np.concatenate((A_x_1,zero_padding, A_x_2))
 A_y = np.concatenate((A_y_1,zero_padding, A_y_2))
 
-# plot A_x and A_y
-
-
-
-# Extend time by 25% and generate corresponding extended A_x values
-
-
-# Extend the time vector
-
-# Extend A_x by zero padding for the extra time
-# A_x = np.concatenate((A_x, zero_padding))  # Append zero padding to A_x 
-
-# # Extend A_y by zero padding for the extra time
-# A_y = np.concatenate((A_y, zero_padding))  # Correctly extend A_y
-
-# Ensure A_x and A_y have the same length as t
-
 t = t_total
 time_steps  = t
 wavelength_um = 0.04564 / omega_0
 intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
-#print(t[-1])
 
-# A_y = A_y[9000:]
 
-# plt.figure(figsize=(16, 8))
-# plt.plot(time_steps,A_y, label='A_x', linewidth=2)
-# plt.plot(time_steps, A_x, label='A_y', linewidth=2)
-# plt.xlabel('Time (a.u.)', fontsize=14)
-# plt.ylabel('Field Amplitude (a.u.)', fontsize=14)
 
-# plt.title(f'Pump-Probe Field Amplitudes, $A_0$ = {intensity_Wcm/ 1e10:.3f} 10^10 W/cm^2", $\omega_0 = ${wavelength_um:.2f} $\mu$m', fontsize=16)
+# plot A_x and A_y vs time
+# plt.figure(figsize=(12, 6))
+# plt.plot(t, A_x, label="A_x", alpha=0.7, linewidth=2)
+# plt.plot(t, A_y, label="A_y", alpha=0.7, linewidth=2)
+# plt.title("Field Amplitudes A_x and A_y vs Time")
+# plt.xlabel(r"$t[a.u.]$", fontsize=14)
+# plt.ylabel(r"$A_{x,y}$", fontsize=14)
+# plt.xticks(fontsize=14)
+# plt.yticks(fontsize=14)
 # plt.legend()
-# # make grid 
-# plt.grid()
+# plt.grid(True)
+# plt.savefig('field_amplitudes.pdf')
 # plt.show()
-#continue
+
+# Define timing parameters
+# T_first_pulse = total_time / 8
+# T_decay = T_first_pulse / 2
+# T_buffer = total_time / 4
+# T_buffer_start = T_first_pulse + T_decay
+# T_second_pulse_start = T_buffer_start + T_buffer
+# T_second_pulse_end = T_second_pulse_start + 4*T_first_pulse  # Define end of second pulse
+
+# # Create envelope for first pulse with smooth decay
+# envelope_first = np.zeros_like(t)
+# mask_first = t <= 2*T_first_pulse
+# envelope_first[mask_first] = np.sin(np.pi * t[mask_first] / (2 * T_first_pulse)) ** 2
+
+# Add decay period
+# mask_decay = (t > T_first_pulse) & (t <= T_buffer_start)
+# t_decay = t[mask_decay] - T_first_pulse
+# envelope_first[mask_decay] = (np.cos(np.pi * t_decay / (2 * T_decay)) ** 2) * envelope_first[mask_first][-1]
+
+# Create envelope for second pulse
+# Create envelope for the second pulse
+# envelope_second = np.zeros_like(t)
+# mask_second = (t >= T_second_pulse_start) & (t <= T_second_pulse_end)
+# t_shifted = t[mask_second] - T_second_pulse_start  # Shifted time for second pulse
+# envelope_second[mask_second] = np.sin(np.pi * t_shifted / ((T_second_pulse_end - T_second_pulse_start))) ** 2
 
 
+# First pulse (circular polarization)
+# A_x = A_0 * envelope_first * np.sin(omega_0 * t)
+# A_y = -A_0 * envelope_first * np.cos(omega_0 * t)
 
+# # Second pulse (linear polarization in y direction)
+# A_y_second = A_0 * envelope_second * np.sin(0.25*omega_0 * t)
+# A_x_second = np.zeros_like(t)
 
+# # Combine pulses
+# A_x_total = A_x + A_x_second
+# A_y_total = A_y + A_y_second
+# A_total = np.sqrt(A_x_total**2 + A_y_total**2)
 
+# Plotting
+# plt.figure(figsize=(12, 6))
+# plt.plot(t, A_x_total, label="A_x (total)", alpha=0.7)
+# plt.plot(t, A_y_total, label="A_y (total)", alpha=0.7)
+# plt.plot(t, A_total, label="Total Field Amplitude", linestyle="--", color='black')
+# plt.title("Complete Pulse Sequence with Buffer")
+# plt.xlabel("Time (a.u.)")
+# plt.ylabel("Field Amplitude (a.u.)")
+# plt.legend()
+# plt.grid(True)
+# plt.savefig('pulse_sequence.pdf')
+#plt.show()
 
-Ht=np.zeros((len(t),len(dict0),len(dict0)),dtype=np.complex128)
-
-@njit(parallel=True)
-def build_Ht(H, A,A_x, A_y, Ht):
-    for t_i in prange(len(t)):
-        # if t_i > 
-        for k in range(len(H)):
-            for j in range(len(H)):
-                Ht[t_i, k, j] = H[k, j] *np.exp(-1j * (A[k][1] - A[j][1]) * A_x[t_i])* np.exp(-1j * (A[k][2] - A[j][2]) *(-1)* A_y[t_i])
-    return Ht
-
-Ht = build_Ht(H, A ,A_x,A_y,  Ht)
-
-wavelength_um = 0.04564 / omega_0
-intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
-print(f"Angular frequency: {omega_0} a.u. -> Wavelength: {wavelength_um:.2f} µm")
-print(f"intensity: {A_0_1} a.u. -> intensity: {intensity_Wcm / 1e9:.3f} 10^9 W/cm^2")
 @njit
-def Ha(t, time_steps, Ht):
-    # Find the index of the closest time step
+def compute_Ht_single(H, A, A_x_val, A_y_val):
+    """Compute H(t) for a single time step"""
+    Ht_single = np.zeros_like(H, dtype=np.complex128)
+    for k in range(len(H)):
+        for j in range(len(H)):
+            Ht_single[k, j] = H[k, j] * np.exp(-1j * (A[k][1] - A[j][1]) * A_x_val) * np.exp(-1j * (A[k][2] - A[j][2])  * A_y_val)
+    return Ht_single
+
+@njit
+def Ha_on_demand(t, time_steps, H, A, A_x, A_y):
+    """Compute H(t) on demand without storing the entire array"""
     t_index = np.argmin(np.abs(time_steps - t))
-    return Ht[t_index]
+    return compute_Ht_single(H, A, A_x[t_index], A_y[t_index])
 
 @njit
-def schrodinger(t, psi, time_steps, Ht):
-    return -1j * Ha(t, time_steps, Ht) @ psi
+def schrodinger_on_demand(t, psi, time_steps, H, A, A_x, A_y):
+    return -1j * Ha_on_demand(t, time_steps, H, A, A_x, A_y) @ psi
 
 @njit
-def RK4_step(f, t, y, dt, time_steps, Ht):
-    k1 = dt * f(t, y, time_steps, Ht)
-    k2 = dt * f(t + 0.5 * dt, y + 0.5 * k1, time_steps, Ht)
-    k3 = dt * f(t + 0.5 * dt, y + 0.5 * k2, time_steps, Ht)
-    k4 = dt * f(t + dt, y + k3, time_steps, Ht)
+def RK4_step_on_demand(f, t, y, dt, time_steps, H, A, A_x, A_y):
+    k1 = dt * f(t, y, time_steps, H, A, A_x, A_y)
+    k2 = dt * f(t + 0.5 * dt, y + 0.5 * k1, time_steps, H, A, A_x, A_y)
+    k3 = dt * f(t + 0.5 * dt, y + 0.5 * k2, time_steps, H, A, A_x, A_y)
+    k4 = dt * f(t + dt, y + k3, time_steps, H, A, A_x, A_y)
     return y + (k1 + 2 * k2 + 2 * k3 + k4) / 6
 
-# Time steps and initial conditions
+# Modified time evolution
 t_start = time_steps[0]
 t_end = time_steps[-1]
 dt = time_steps[1] - time_steps[0]
@@ -564,28 +573,45 @@ for i in range(dim):
     psi_t = psi0
     psi_t_list = [psi0]
     for t in time_steps[:-1]:
-        psi_t = RK4_step(schrodinger, t, psi_t, dt, time_steps, Ht)
+        psi_t = RK4_step_on_demand(schrodinger_on_demand, t, psi_t, dt, time_steps, H, A, A_x, A_y)
         psi_t_list.append(psi_t)
     solutions.append(np.array(psi_t_list).T)
 
+# Modified current calculation
 @njit
-def calculate_current(solutions, t_index, time_steps, Ht, A):
-        J = np.zeros(2, dtype=np.complex128)
-        H = Ha(time_steps[t_index], time_steps, Ht)
-        for l in range(len(solutions) - 1):
-            for i in range(len(solutions)):
-                for j in range(len(solutions)):
-                    J[0] += (A[i][1] - A[j][1]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
-                    J[1] += (A[i][2] - A[j][2]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
-        
-        return J
-#second_pulse_indices = np.where((time_steps >= T_second_pulse_start) & (time_steps <= T_second_pulse_end))[0]
+def calculate_current_on_demand(solutions, t_index, time_steps, H, A, A_x, A_y, vertical_edge_indices):
+    J = np.zeros(2, dtype=np.complex128)
+    Ht_current = compute_Ht_single(H, A, A_x[t_index], A_y[t_index])
+    
+    for l in range(len(solutions) - 1):
+        for i in range(len(solutions)):
+            for j in range(len(solutions)):
+                 J[0] += (A[i][1] - A[j][1]) * -1j * np.conj(solutions[l][i][t_index]) * Ht_current[i][j] * solutions[l][j][t_index]
+                 J[1] += (A[i][2] - A[j][2]) * -1j * np.conj(solutions[l][i][t_index]) * Ht_current[i][j] * solutions[l][j][t_index]
+                    
+    return J
 
-J_t = [calculate_current(solutions, t_index, time_steps, Ht, A) for t_index in range(len(time_steps))]
-J_y = [J[1] for J in J_t]
+# Calculate current with on-demand H(t) computation
+J_t = [calculate_current_on_demand(solutions, t_index, time_steps, H, A, A_x, A_y, vertical_edge_indices_all) 
+       for t_index in range(len(time_steps))]
+
 J_x = [J[0] for J in J_t]
+J_y = [J[1] for J in J_t]
+J_x = [ J.real for J in J_x]
+J_y = [ J.real for J in J_y]
 
-# plot J_y
+
+# Multiply by 6
+#J_x_multiplied = [6 * J.real for J in J_x]
+J_y_multiplied = [6 * J.real for J in J_y]
+num = random.randint(0, 10000)
+# Plot J_x and J_y multiplied by 6 vs time
+
+
+
+
+    
+    
 
 dJ_y_dt = np.gradient(J_y, time_steps)
 dJ_x_dt = np.gradient(J_x, time_steps)
@@ -616,474 +642,28 @@ total_intensity_right = abs_fft_dJ_y_dt_positive + abs_fft_dJ_x_dt_positive
 harmonic_10_frequency = 12 * omega_0
 num_harmonics = 12
 bandwidth = omega_0 / 2   # fixed window around each harmonic
-harmonic_integrals = []
+harmonic_integrals_lcp = []
 
 for i in range(1, num_harmonics + 1):
     harmonic_freq = i * omega_0
     mask = (positive_frequencies >= harmonic_freq - bandwidth) & \
         (positive_frequencies <= harmonic_freq + bandwidth)
     integral_val = np.trapezoid(total_intensity_right[mask], positive_frequencies[mask])
-    harmonic_integrals.append(integral_val)
+    harmonic_integrals_lcp.append(integral_val)
 
-# --- Save to CSV ---
+
+
+
+
 csv_filename = "../data/trial.csv"
 file_exists = os.path.isfile(csv_filename)
 
-with open(csv_filename, mode="a", newline="") as f:
-    writer = csv.writer(f)
+# save each harmonic integral in a csv file first column is trial value
+
+with open(csv_filename, mode='a', newline='') as file:
+    writer = csv.writer(file)
     if not file_exists:
-        header = ["A0"] + [f"Harmonic_{i}" for i in range(1, num_harmonics + 1)]
-
+        header = ['A0'] + [f'Harmonic_{i+1}' for i in range(num_harmonics)]
         writer.writerow(header)
-    writer.writerow([trial] + harmonic_integrals)
-
-
-
-
-
-
-
-
-exit()
-
-
-    #
-
-
-
-    # Plot the results for the current time
-
-    # Initialize the plot
-
-    #plt.figure(figsize=(12, 6))
-
-
-    #plt.plot(positive_frequencies[:harmonic_10_index], 1e12 * total_intensity_right[:harmonic_10_index])
-
-
-    # dt = 12000+1000
-
-    # dt_1 = (dt-1000)//2
-
-
-
-    # t_total = np.arange(0, (4+(1/17)*4) * np.pi * n_0 / omega_0, (4+(1/17)*4) * np.pi * n_0 / omega_0 / dt)
-    # t1 = np.arange(0, 2 * np.pi * n_0 / omega_0, 2 * np.pi * n_0 / omega_0 / dt_1)
-    # t2 = np.arange(0, 2 * np.pi * n_0 / omega_0, 2 * np.pi * n_0 / omega_0 / dt_1)
-
-    # t_1 = t1
-    # # Generate the A_x signal
-    # sin2_term = np.sin(omega_0 * t_1 / (2 * n_0)) ** 2
-    # A_x_1 = A_0_1 * sin2_term * np.cos(omega_0 * t_1)
-    # A_y_1 = (-1)*A_0_1 * sin2_term * np.sin(omega_0 * t_1)
-
-    # A_x_2 = A_0_2 * sin2_term * np.cos(omega_0 * t_1)
-    # A_y_2 =-1*A_0_2 * sin2_term * np.sin(omega_0 * t_1)
-
-
-    # zero_padding = np.zeros(1000)
-    # A_x = np.concatenate((A_x_1,zero_padding, A_x_2))
-    # A_y = np.concatenate((A_y_1,zero_padding, A_y_2))
-
-    # # plot A_x and A_y
-
-
-
-    # # Extend time by 25% and generate corresponding extended A_x values
-
-
-    # # Extend the time vector
-
-    # # Extend A_x by zero padding for the extra time
-    # # A_x = np.concatenate((A_x, zero_padding))  # Append zero padding to A_x 
-
-    # # # Extend A_y by zero padding for the extra time
-    # # A_y = np.concatenate((A_y, zero_padding))  # Correctly extend A_y
-
-    # # Ensure A_x and A_y have the same length as t
-
-    # t = t_total
-    # time_steps  = t
-    # wavelength_um = 0.04564 / omega_0
-    # intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
-    # print(t[-1])
-
-    # # A_y = A_y[9000:]
-
-    # # plt.figure(figsize=(16, 8))
-    # # plt.plot(time_steps,A_y, label='A_x', linewidth=2)
-    # # plt.plot(time_steps, A_x, label='A_y', linewidth=2)
-    # # plt.xlabel('Time (a.u.)', fontsize=14)
-    # # plt.ylabel('Field Amplitude (a.u.)', fontsize=14)
-
-    # # plt.title(f'Pump-Probe Field Amplitudes, $A_0$ = {intensity_Wcm/ 1e10:.3f} 10^10 W/cm^2", $\omega_0 = ${wavelength_um:.2f} $\mu$m', fontsize=16)
-    # # plt.legend()
-    # # # make grid 
-    # # plt.grid()
-    # # plt.show()
-    # #continue
-
-
-
-
-
-
-    # Ht=np.zeros((len(t),len(dict0),len(dict0)),dtype=np.complex128)
-
-    # @njit(parallel=True)
-    # def build_Ht(H, A,A_x, A_y, Ht):
-    #     for t_i in prange(len(t)):
-    #         # if t_i > 
-    #         for k in range(len(H)):
-    #             for j in range(len(H)):
-    #                 Ht[t_i, k, j] = H[k, j] *np.exp(-1j * (A[k][1] - A[j][1]) * A_x[t_i])* np.exp(-1j * (A[k][2] - A[j][2]) * A_y[t_i])
-    #     return Ht
-
-    # Ht = build_Ht(H, A ,A_x,A_y,  Ht)
-
-    # wavelength_um = 0.04564 / omega_0
-    # intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
-    # print(f"Angular frequency: {omega_0} a.u. -> Wavelength: {wavelength_um:.2f} µm")
-    # print(f"intensity: {A_0_1} a.u. -> intensity: {intensity_Wcm / 1e9:.3f} 10^9 W/cm^2")
-    # @njit
-    # def Ha(t, time_steps, Ht):
-    #     # Find the index of the closest time step
-    #     t_index = np.argmin(np.abs(time_steps - t))
-    #     return Ht[t_index]
-
-    # @njit
-    # def schrodinger(t, psi, time_steps, Ht):
-    #     return -1j * Ha(t, time_steps, Ht) @ psi
-
-    # @njit
-    # def RK4_step(f, t, y, dt, time_steps, Ht):
-    #     k1 = dt * f(t, y, time_steps, Ht)
-    #     k2 = dt * f(t + 0.5 * dt, y + 0.5 * k1, time_steps, Ht)
-    #     k3 = dt * f(t + 0.5 * dt, y + 0.5 * k2, time_steps, Ht)
-    #     k4 = dt * f(t + dt, y + k3, time_steps, Ht)
-    #     return y + (k1 + 2 * k2 + 2 * k3 + k4) / 6
-
-    # # Time steps and initial conditions
-    # t_start = time_steps[0]
-    # t_end = time_steps[-1]
-    # dt = time_steps[1] - time_steps[0]
-    # solutions = []
-
-    # dim = len(ev)
-    # for i in range(dim):
-    #     psi0 = ev[:, i]
-    #     psi_t = psi0
-    #     psi_t_list = [psi0]
-    #     for t in time_steps[:-1]:
-    #         psi_t = RK4_step(schrodinger, t, psi_t, dt, time_steps, Ht)
-    #         psi_t_list.append(psi_t)
-    #     solutions.append(np.array(psi_t_list).T)
-
-    # @njit
-    # def calculate_current(solutions, t_index, time_steps, Ht, A):
-    #         J = np.zeros(2, dtype=np.complex128)
-    #         H = Ha(time_steps[t_index], time_steps, Ht)
-    #         for l in range(len(solutions) - 1):
-    #             for i in range(len(solutions)):
-    #                 for j in range(len(solutions)):
-    #                     J[0] += (A[i][1] - A[j][1]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
-    #                     J[1] += (A[i][2] - A[j][2]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
-            
-    #         return J
-    # #second_pulse_indices = np.where((time_steps >= T_second_pulse_start) & (time_steps <= T_second_pulse_end))[0]
-
-    # J_t = [calculate_current(solutions, t_index, time_steps, Ht, A) for t_index in range(len(time_steps))]
-    # J_y = [J[1] for J in J_t]
-    # J_x = [J[0] for J in J_t]
-
-    # # plot J_y
-
-    # dJ_y_dt = np.gradient(J_y, time_steps)
-    # dJ_x_dt = np.gradient(J_x, time_steps)
-    # dJ_y_dt = dJ_y_dt[7000:]
-    # dJ_x_dt = dJ_x_dt[7000:]
-
-    # # Apply a Hann window
-    # hann_window = np.hanning(len(dJ_y_dt))
-    # dJ_y_dt_windowed = dJ_y_dt * hann_window
-
-    # # Perform FFT on the windowed data
-    # fft_dJ_y_dt = np.fft.fft(dJ_y_dt_windowed)
-    # abs_fft_dJ_y_dt = np.abs(fft_dJ_y_dt) ** 2
-
-    # # Calculate frequencies
-    # frequencies = np.fft.fftfreq(len(dJ_y_dt), d=time_steps[1] - time_steps[0])
-
-    # positive_frequencies = 2 * np.pi * frequencies[frequencies >= 0]
-    # abs_fft_dJ_y_dt_positive = abs_fft_dJ_y_dt[frequencies >= 0]
-
-    # dJ_x_dt_windowed = dJ_x_dt * hann_window
-    # fft_dJ_x_dt = np.fft.fft(dJ_x_dt_windowed)
-    # abs_fft_dJ_x_dt = np.abs(fft_dJ_x_dt) ** 2
-    # abs_fft_dJ_x_dt_positive = abs_fft_dJ_x_dt[frequencies >= 0]
-
-    # total_intensity_left = abs_fft_dJ_y_dt_positive + abs_fft_dJ_x_dt_positive
-
-    # harmonic_10_frequency = 12 * omega_0
-    # harmonic_10_index = np.argmin(np.abs(positive_frequencies - harmonic_10_frequency))
-    # max_frequency = positive_frequencies[harmonic_10_index]
-    # x_ticks = np.arange(0, max_frequency, omega_0)
-
-
-    # half_fundamental_frequency = omega_0 / 2
-    # integral_1_l = np.trapezoid(total_intensity_left[:harmonic_10_index], positive_frequencies[:harmonic_10_index])
-    # integral_5_l = np.trapezoid(total_intensity_left[harmonic_10_index - 5:harmonic_10_index + 5],
-    #                       positive_frequencies[harmonic_10_index - 5:harmonic_10_index + 5])
-    # integral_7_l = np.trapezoid(total_intensity_left[harmonic_10_index - 7:harmonic_10_index + 7],
-    #                       positive_frequencies[harmonic_10_index - 7:harmonic_10_index + 7])
-    
-    # # fill integral_arr with circular dichroism values for the 1, 5, and 7 harmonics
-    
-    # integral_arr[ind][0] = (integral_1_r - integral_1_l)/ (integral_1_r + integral_1_l)
-    # integral_arr[ind][1] = (integral_5_r - integral_5_l)/ (integral_5_r + integral_5_l)
-    # integral_arr[ind][2] = (integral_7_r - integral_7_l)/ (integral_7_r + integral_7_l)
-       
-
-
-
-    # Plot the results for the current time
-
-    # Initialize the plot
-
-    #plt.figure(figsize=(12, 6))
-
-
-    # plt.plot(positive_frequencies[:harmonic_10_index], 1e12 * total_intensity[:harmonic_10_index])
-
-    # # Set plot labels and title
-    # plt.yscale('log')
-    # plt.xlabel('Harmonic Order')
-    # plt.ylabel(r'$|FFT(\dot{J})|^2$')
-    # plt.xticks(x_ticks, [f'{i}' for i in range(len(x_ticks))])
-    # wavelength_um = round(wavelength_um, 2)
-
-    # plt.title(f'linearly polarized pulse, Wavelength = {wavelength_um} ' f"$\mu$m, length side of the hexagon flake = {m}, field_strength = {intensity_Wcm/ 1e10:.3f} 10^10 W/cm^2")
-    # plt.grid(True, which='both', linestyle='--', linewidth=0.5)
-    # plt.legend()
-
-    # # Save and show the plot
-    # number = random.randint(0, 10000)
-    # plt.savefig(f'pupmprobe_topofiner_{wavelength_um}_{number}_{factor}.pdf')
-#     current_x = []
-#     current_y = []
-
-#     t2 = 0
-
-
-#     t1 = -0.1
-#     Delta = 0
-
-#     H=hamiltonian(Delta,t1,t2)
-#     A_0_1 = factor
-#     A_0_2 = 0.2
-
-
-
-#     ew, ev = LA.eigh(H)
-#     dt = 2*duration+buffer
-
-#     dt_1 = (dt-buffer)//2
-#     #omega_0 = 0.08 # 570 nm
-
-#     omega_0 = 0.0759389 # 600 nm
-
-#     n_0 = 10
-
-#     # Original time setup
-#     t_total = np.arange(0, (4+(1/17)*4) * np.pi * n_0 / omega_0, (4+(1/17)*4) * np.pi * n_0 / omega_0 / dt)
-#     t1 = np.arange(0, 2 * np.pi * n_0 / omega_0, 2 * np.pi * n_0 / omega_0 / dt_1)
-#     t2 = np.arange(0, 2 * np.pi * n_0 / omega_0, 2 * np.pi * n_0 / omega_0 / dt_1)
-
-#     t_1 = t1
-#     # Generate the A_x signal
-#     sin2_term = np.sin(omega_0 * t_1 / (2 * n_0)) ** 2
-#     A_x_1 = A_0_1 * sin2_term * np.cos(omega_0 * t_1)
-#     A_y_1 = A_0_1 * sin2_term * np.sin(omega_0 * t_1)
-
-#     A_x_2 = A_0_2 * sin2_term * np.cos(omega_0 * t_1)
-#     A_y_2 = -1*A_0_2 * sin2_term * np.sin(omega_0 * t_1)
-
-
-#     zero_padding = np.zeros(buffer)
-#     A_x = np.concatenate((A_x_1,zero_padding, A_x_2))
-#     A_y = np.concatenate((A_y_1,zero_padding, A_y_2))
-
-#     # plot A_x and A_y
-
-
-
-#     # Extend time by 25% and generate corresponding extended A_x values
-
-
-#     # Extend the time vector
-
-#     # Extend A_x by zero padding for the extra time
-#     # A_x = np.concatenate((A_x, zero_padding))  # Append zero padding to A_x 
-
-#     # # Extend A_y by zero padding for the extra time
-#     # A_y = np.concatenate((A_y, zero_padding))  # Correctly extend A_y
-
-#     # Ensure A_x and A_y have the same length as t
-
-#     t = t_total
-#     time_steps  = t
-#     wavelength_um = 0.04564 / omega_0
-#     intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
-#     print(t[-1])
-#     # #plt.show()
-
-#     Ht=np.zeros((len(t),len(dict0),len(dict0)),dtype=np.complex128)
-
-#     @njit(parallel=True)
-#     def build_Ht(H, A,A_x, A_y, Ht):
-#         for t_i in prange(len(t)):
-#             # if t_i > 
-#             for k in range(len(H)):
-#                 for j in range(len(H)):
-#                     Ht[t_i, k, j] = H[k, j] *np.exp(-1j * (A[k][1] - A[j][1]) * A_x[t_i])* np.exp(-1j * (A[k][2] - A[j][2]) * A_y[t_i])
-#         return Ht
-
-#     Ht = build_Ht(H, A ,A_x,A_y,  Ht)
-
-#     wavelength_um = 0.04564 / omega_0
-#     intensity_Wcm = 3.218e15 * (omega_0 * A_0_1) ** 2
-#     print(f"Angular frequency: {omega_0} a.u. -> Wavelength: {wavelength_um:.2f} µm")
-#     print(f"intensity: {A_0_1} a.u. -> intensity: {intensity_Wcm / 1e9:.3f} 10^9 W/cm^2")
-#     @njit
-#     def Ha(t, time_steps, Ht):
-#         # Find the index of the closest time step
-#         t_index = np.argmin(np.abs(time_steps - t))
-#         return Ht[t_index]
-
-#     @njit
-#     def schrodinger(t, psi, time_steps, Ht):
-#         return -1j * Ha(t, time_steps, Ht) @ psi
-
-#     @njit
-#     def RK4_step(f, t, y, dt, time_steps, Ht):
-#         k1 = dt * f(t, y, time_steps, Ht)
-#         k2 = dt * f(t + 0.5 * dt, y + 0.5 * k1, time_steps, Ht)
-#         k3 = dt * f(t + 0.5 * dt, y + 0.5 * k2, time_steps, Ht)
-#         k4 = dt * f(t + dt, y + k3, time_steps, Ht)
-#         return y + (k1 + 2 * k2 + 2 * k3 + k4) / 6
-
-#     # Time steps and initial conditions
-#     t_start = time_steps[0]
-#     t_end = time_steps[-1]
-#     dt = time_steps[1] - time_steps[0]
-#     solutions = []
-
-#     dim = len(ev)
-#     for i in range(dim):
-#         psi0 = ev[:, i]
-#         psi_t = psi0
-#         psi_t_list = [psi0]
-#         for t in time_steps[:-1]:
-#             psi_t = RK4_step(schrodinger, t, psi_t, dt, time_steps, Ht)
-#             psi_t_list.append(psi_t)
-#         solutions.append(np.array(psi_t_list).T)
-
-#     @njit
-#     def calculate_current(solutions, t_index, time_steps, Ht, A):
-#             J = np.zeros(2, dtype=np.complex128)
-#             H = Ha(time_steps[t_index], time_steps, Ht)
-#             for l in range(len(solutions) - 1):
-#                 for i in range(len(solutions)):
-#                     for j in range(len(solutions)):
-#                         J[0] += (A[i][1] - A[j][1]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
-#                         J[1] += (A[i][2] - A[j][2]) * -1j * np.conj(solutions[l][i][t_index]) * H[i][j] * solutions[l][j][t_index]
-            
-#             return J
-#     #second_pulse_indices = np.where((time_steps >= T_second_pulse_start) & (time_steps <= T_second_pulse_end))[0]
-
-#     J_t = [calculate_current(solutions, t_index, time_steps, Ht, A) for t_index in range(len(time_steps))]
-#     J_y = [J[1] for J in J_t]
-#     J_x = [J[0] for J in J_t]
-
-#     # plot J_y
-
-#     dJ_y_dt = np.gradient(J_y, time_steps)
-#     dJ_x_dt = np.gradient(J_x, time_steps)
-#     dJ_y_dt = dJ_y_dt[duration+buffer:]
-#     dJ_x_dt = dJ_x_dt[duration+buffer:]
-
-#     # Apply a Hann window
-#     hann_window = np.hanning(len(dJ_y_dt))
-#     dJ_y_dt_windowed = dJ_y_dt * hann_window
-
-#     # Perform FFT on the windowed data
-#     fft_dJ_y_dt = np.fft.fft(dJ_y_dt_windowed)
-#     abs_fft_dJ_y_dt = np.abs(fft_dJ_y_dt) ** 2
-
-#     # Calculate frequencies
-#     frequencies = np.fft.fftfreq(len(dJ_y_dt), d=time_steps[1] - time_steps[0])
-
-#     positive_frequencies = 2 * np.pi * frequencies[frequencies >= 0]
-#     abs_fft_dJ_y_dt_positive = abs_fft_dJ_y_dt[frequencies >= 0]
-
-#     dJ_x_dt_windowed = dJ_x_dt * hann_window
-#     fft_dJ_x_dt = np.fft.fft(dJ_x_dt_windowed)
-#     abs_fft_dJ_x_dt = np.abs(fft_dJ_x_dt) ** 2
-#     abs_fft_dJ_x_dt_positive = abs_fft_dJ_x_dt[frequencies >= 0]
-#     delta_omega = 0.5 * omega_0  # width of integration window
-
-    
-
-#     total_intensity_left = abs_fft_dJ_y_dt_positive + abs_fft_dJ_x_dt_positive
-#     harmonic_orders = np.arange(1, 13)
-
-#     intensity_left_list = []
-
-
-#     for order in harmonic_orders:
-#         frequency = order * omega_0
-#         # Find indices within the window
-#         indices = np.where(np.abs(positive_frequencies - frequency) < delta_omega / 2)[0]
-#         # Integrate (sum) the intensity in the window
-#         intensity_left = np.trapz(total_intensity_left[indices], positive_frequencies[indices])
-#         intensity_left_list.append(intensity_left)
-#     intensity_left = np.array(intensity_left_list)
-
-#     harmonic_10_frequency = 12 * omega_0
-#     harmonic_10_index = np.argmin(np.abs(positive_frequencies - harmonic_10_frequency))
-#     max_frequency = positive_frequencies[harmonic_10_index]
-#     x_ticks = np.arange(0, max_frequency, omega_0)
-
-#     # find the difference between total_intensity_right and total_intensity_left at the multiples of omega_0 and save them to integral_arr
-    
-   
-
-#     for order in harmonic_orders:
-#         frequency = order * omega_0
-#         index = np.argmin(np.abs(positive_frequencies - frequency))
-#         integral_arr[ind, order - 1] = abs(intensity_right_list[order - 1] - intensity_left_list[order - 1]) / (intensity_right_list[order - 1] + intensity_left_list[order - 1])
-
-    
-#     # plot intensity_left and intensity_right
-  
-
-
-    
-    
-
-
-
-
-
-# # plot the overall results
-
-# for i in range(len(amplitudes)):
-#     plt.plot(harmonic_orders, integral_arr[i], label=f'A_0 = {amplitudes[i]}')
-# plt.xlabel('Harmonic Order')
-# plt.ylabel('Integral Difference')
-# plt.title(r'$C(n)$ dichroism vs Harmonic Order')
-# plt.xticks(harmonic_orders)
-# plt.legend()
-# plt.grid(True)
-# plt.savefig('plots/cd_test_triavial.pdf')
-# plt.show()
+    row = [trial] + harmonic_integrals_lcp
+    writer.writerow(row)
