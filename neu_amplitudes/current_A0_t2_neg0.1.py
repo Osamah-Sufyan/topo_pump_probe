@@ -410,7 +410,6 @@ def hamiltonian(M,t_1,t_2):
 
 
 
-amplitudes = [1e0, 2e-1,  2e-2, 2e-3]
 
 t2_values = np.arange(0,1, 1/20)  # Angular frequency in atomic units
 current_x = []
@@ -420,7 +419,7 @@ factor = float(sys.argv[1])
 
 t1 = -0.1
 Delta = 0.01
-t2 = 0.03
+t2 = -0.1
 H=hamiltonian(Delta,t1,t2)
 A_0 = factor
 
